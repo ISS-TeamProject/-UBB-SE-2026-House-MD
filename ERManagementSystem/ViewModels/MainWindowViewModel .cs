@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ERManagementSystem.Services;
+using ERManagementSystem.Views;
 
 namespace ERManagementSystem.ViewModels
 {
@@ -20,43 +21,43 @@ namespace ERManagementSystem.ViewModels
         [RelayCommand]
         private void ShowPatientRegistration()
         {
-            //_navigationService.Navigate(typeof(PatientRegistrationView));
+            _navigationService.Navigate(typeof(PatientRegistrationView));
         }
 
         [RelayCommand]
         private void ShowQueue()
         {
-            //_navigationService.Navigate(typeof(QueueView));
+            _navigationService.Navigate(typeof(QueueView));
         }
 
         [RelayCommand]
         private void ShowTriage()
         {
-            //_navigationService.Navigate(typeof(TriageView));
+            _navigationService.Navigate(typeof(TriageView));
         }
 
         [RelayCommand]
         private void ShowRoomAssignment()
         {
-            //_navigationService.Navigate(typeof(RoomAssignmentView));
+            _navigationService.Navigate(typeof(RoomAssignmentView));
         }
 
         [RelayCommand]
         private void ShowExamination()
         {
-            //_navigationService.Navigate(typeof(ExaminationView));
+            _navigationService.Navigate(typeof(ExaminationView));
         }
 
         [RelayCommand]
         private void ShowTransferLog()
         {
-            // _navigationService.Navigate(typeof(TransferLogView));
+            _navigationService.Navigate(typeof(TransferLogView));
         }
 
         [RelayCommand]
         private void ShowRoomManagement()
         {
-            //_navigationService.Navigate(typeof(RoomManagementView));
+            _navigationService.Navigate(typeof(RoomManagementView));
         }
     }
 }
