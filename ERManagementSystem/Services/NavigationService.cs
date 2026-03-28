@@ -21,7 +21,7 @@ namespace ERManagementSystem.Services
             _frame?.Navigate(pageType);
         }
 
-        public void Navigate(Type pageType, object parameter)
+        public void Navigate(Type pageType, object parameter) // parameter - the ViewModel associated with the page
         {
             _frame?.Navigate(pageType, parameter);
         }
