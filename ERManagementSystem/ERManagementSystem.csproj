@@ -54,7 +54,6 @@
     <Folder Include="Models\" />
     <Folder Include="DataAccess\" />
     <Folder Include="Helpers\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\RoomManagementView.xaml">
