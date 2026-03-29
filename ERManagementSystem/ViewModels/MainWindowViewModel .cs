@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using ERManagementSystem.Services;
 using ERManagementSystem.ViewModels;
 using ERManagementSystem.Views;
@@ -14,7 +14,6 @@ namespace ERManagementSystem.ViewModels
         {
             _navigationService = navigationService;
         }
-
 
         [RelayCommand]
         private void ShowPatientRegistration()
@@ -38,7 +37,8 @@ namespace ERManagementSystem.ViewModels
         [RelayCommand]
         private void ShowRoomAssignment()
         {
-            _navigationService.Navigate(typeof(RoomAssignmentView));
+            var vm = App.Services.GetRequiredService<RoomAssignmentViewModel>();
+            _navigationService.Navigate(typeof(RoomAssignmentView), vm);
         }
 
         [RelayCommand]
@@ -56,7 +56,8 @@ namespace ERManagementSystem.ViewModels
         [RelayCommand]
         private void ShowRoomManagement()
         {
-            _navigationService.Navigate(typeof(RoomManagementView));
+            var vm = App.Services.GetRequiredService<RoomManagementViewModel>();
+            _navigationService.Navigate(typeof(RoomManagementView), vm);
         }
     }
 }

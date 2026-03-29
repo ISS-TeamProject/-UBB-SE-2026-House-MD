@@ -1,4 +1,4 @@
-﻿using ERManagementSystem.DataAccess;
+using ERManagementSystem.DataAccess;
 using ERManagementSystem.Helpers;
 using ERManagementSystem.Repositories;
 using ERManagementSystem.Services;
@@ -12,8 +12,6 @@ namespace ERManagementSystem
     public partial class App : Application
     {
         public static ServiceProvider Services { get; private set; } = null!;
-
-        // Expose the main window so ViewModels can access XamlRoot for dialogs
         public static Window? MainAppWindow { get; private set; }
 
         public App()
@@ -35,20 +33,35 @@ namespace ERManagementSystem
             services.AddSingleton<INavigationService>(sp =>
                 sp.GetRequiredService<NavigationService>());
 
-            // ── Repositories (Miruna's: Patient & Visit) ─────────────────────
+            // ── Repositories (Miruna: Patient & Visit) ───────────────────────
             services.AddTransient<PatientRepository>();
             services.AddTransient<ERVisitRepository>();
 
-            // ── Services (Miruna's: Registration & State) ────────────────────
+            // ── Repositories (Alex: Room) ─────────────────────────────────── ← NEW
+            services.AddTransient<RoomRepository>();
+
+            // ── Services (Miruna: Registration & State) ──────────────────────
             services.AddTransient<RegistrationService>();
             services.AddTransient<StateManagementService>();
+
+            // ── Services (Alex: Room Assignment & Management) ─────────────── ← NEW
+            services.AddTransient<RoomAssignmentService>();
+            services.AddTransient<RoomManagementService>();
 
             // ── ViewModels ───────────────────────────────────────────────────
             services.AddSingleton<MainWindowViewModel>();
             services.AddTransient<PatientRegistrationViewModel>();
 
+            // ── ViewModels (Alex) ─────────────────────────────────────────── ← NEW
+            services.AddTransient<RoomAssignmentViewModel>();
+            services.AddTransient<RoomManagementViewModel>();
+
             // ── Views ────────────────────────────────────────────────────────
             services.AddTransient<PatientRegistrationView>();
+
+            // ── Views (Alex) ──────────────────────────────────────────────── ← NEW
+            services.AddTransient<RoomAssignmentView>();
+            services.AddTransient<RoomManagementView>();
 
             Services = services.BuildServiceProvider();
         }
