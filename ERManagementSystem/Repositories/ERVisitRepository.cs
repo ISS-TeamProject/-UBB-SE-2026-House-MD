@@ -136,11 +136,11 @@ namespace ERManagementSystem.Repositories
         public List<(ER_Visit visit, Triage triage)> GetActiveVisitsWithTriage()
         {
             string sql = @"
-        SELECT v.Visit_ID, v.Patient_ID, v.Arrival_date_time, v.Chief_Complaint, v.Status,
-               t.Triage_ID, t.Visit_ID AS Triage_Visit_ID, t.Triage_Level, t.Specialization, t.Nurse_ID, t.Triage_Time
-        FROM ER_Visit v
-        INNER JOIN Triage t ON v.Visit_ID = t.Visit_ID
-        WHERE v.Status NOT IN ('TRANSFERRED', 'CLOSED')";
+                SELECT v.Visit_ID, v.Patient_ID, v.Arrival_date_time, v.Chief_Complaint, v.Status,
+                       t.Triage_ID, t.Visit_ID AS Triage_Visit_ID, t.Triage_Level, t.Specialization, t.Nurse_ID, t.Triage_Time
+                FROM ER_Visit v
+                INNER JOIN Triage t ON v.Visit_ID = t.Visit_ID
+                WHERE v.Status IN ('TRIAGED', 'WAITING_FOR_ROOM')";
 
             var list = new List<(ER_Visit, Triage)>();
 

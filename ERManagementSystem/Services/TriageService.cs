@@ -82,7 +82,7 @@ namespace ERManagementSystem.Services
             triage.Triage_ID = triageId;
 
             _stateService.ChangeVisitStatus(visitId, "TRIAGED");
-            _stateService.ChangeVisitStatus(visitId, "WAITING_FOR_ROOM");
+
 
             return triage;
         }

@@ -10,12 +10,27 @@ namespace ERManagementSystem.Services
     internal class QueueService
     {
         private readonly ERVisitRepository _visitRepository;
-        private readonly TriageRepository _triageRepository;
+        private readonly StateManagementService _stateService;
 
-        public QueueService(ERVisitRepository visitRepository, TriageRepository triageRepository)
+        public QueueService(ERVisitRepository visitRepository, StateManagementService stateService)
         {
             _visitRepository = visitRepository;
-            _triageRepository = triageRepository;
+            _stateService = stateService;
+        }
+
+        /// <summary>
+        /// Moves all visits with status "TRIAGED" to "WAITING_FOR_ROOM".
+        /// </summary>
+        public void MoveTriagedToWaitingForRoom(List<(ER_Visit visit, Triage triage)> queue)
+        {
+            foreach (var (visit, triage) in queue)
+            {
+                if (visit.Status == "TRIAGED")
+                {
+                    _stateService.ChangeVisitStatus(visit.Visit_ID, "WAITING_FOR_ROOM");
+                    visit.Status = "WAITING_FOR_ROOM";
+                }
+            }
         }
 
         /// <summary>
@@ -23,16 +38,11 @@ namespace ERManagementSystem.Services
         /// </summary>
         public List<(ER_Visit visit, Triage triage)> GetOrderedQueue()
         {
-            // Step 1: fetch all active visits (REGISTERED, TRIAGED, WAITING_FOR_ROOM)
-            var activeVisits = _visitRepository.GetActiveVisits();
+           
+            var queueWithTriage = _visitRepository.GetActiveVisitsWithTriage();
 
-            // Step 2: fetch triage for each visit
-            var queueWithTriage = activeVisits
-                .Select(v => (visit: v, triage: _triageRepository.GetByVisitId(v.Visit_ID)))
-                .Where(x => x.triage != null) // only include visits with triage
-                .ToList();
-
-            // Step 3: order by triage level ascending, then arrival time ascending
+            MoveTriagedToWaitingForRoom(queueWithTriage);
+            
             return OrderByTriageLevelAndArrivalTime(queueWithTriage);
         }
 
