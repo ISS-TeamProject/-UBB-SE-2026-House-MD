@@ -1,11 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ERManagementSystem.Services;
+using ERManagementSystem.ViewModels;
 using ERManagementSystem.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ERManagementSystem.ViewModels
 {
@@ -18,10 +15,12 @@ namespace ERManagementSystem.ViewModels
             _navigationService = navigationService;
         }
 
+
         [RelayCommand]
         private void ShowPatientRegistration()
         {
-            _navigationService.Navigate(typeof(PatientRegistrationView));
+            var vm = App.Services.GetRequiredService<PatientRegistrationViewModel>();
+            _navigationService.Navigate(typeof(PatientRegistrationView), vm);
         }
 
         [RelayCommand]

@@ -1,4 +1,4 @@
-using ERManagementSystem.Services;
+﻿using ERManagementSystem.Services;
 using ERManagementSystem.ViewModels;
 using ERManagementSystem.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,8 +20,10 @@ namespace ERManagementSystem
             var navigationService = App.Services.GetRequiredService<NavigationService>();
             navigationService.Initialize(ContentFrame);
 
-            // Default page
-            ContentFrame.Navigate(typeof(PatientRegistrationView));
+            // FIX: Navigate properly so OnNavigatedTo fires and ViewModel is set.
+            // Previously used ContentFrame.Content = ... which bypasses navigation
+            // entirely — OnNavigatedTo never fired, ViewModel was always null.
+            ViewModel.ShowPatientRegistrationCommand.Execute(null);
             AppNavigationView.SelectedItem = AppNavigationView.MenuItems[0];
         }
 
