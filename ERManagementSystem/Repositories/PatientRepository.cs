@@ -68,48 +68,7 @@ namespace ERManagementSystem.Repositories
         }
 
         
-        public void Update(Patient patient)
-        {
-            const string query = @"
-                UPDATE dbo.Patient
-                SET    First_Name        = @First_Name,
-                       Last_Name         = @Last_Name,
-                       Date_of_Birth     = @Date_of_Birth,
-                       Gender            = @Gender,
-                       Phone             = @Phone,
-                       Emergency_Contact = @Emergency_Contact,
-                       Transferred       = @Transferred
-                WHERE  Patient_ID = @Patient_ID";
-
-            var parameters = new[]
-            {
-                new SqlParameter("@Patient_ID",        patient.Patient_ID),
-                new SqlParameter("@First_Name",        patient.First_Name),
-                new SqlParameter("@Last_Name",         patient.Last_Name),
-                new SqlParameter("@Date_of_Birth",     patient.Date_of_Birth),
-                new SqlParameter("@Gender",            patient.Gender),
-                new SqlParameter("@Phone",             patient.Phone),
-                new SqlParameter("@Emergency_Contact", patient.Emergency_Contact),
-                new SqlParameter("@Transferred",       patient.Transferred)
-            };
-
-            _sqlHelper.ExecuteNonQuery(query, parameters);
-        }
-
-       
-        public void Delete(Patient patient)
-        {
-            const string query = @"
-                DELETE FROM dbo.Patient
-                WHERE Patient_ID = @Patient_ID";
-
-            var parameters = new[]
-            {
-                new SqlParameter("@Patient_ID", patient.Patient_ID)
-            };
-
-            _sqlHelper.ExecuteNonQuery(query, parameters);
-        }
+     
 
         
         private Patient MapReaderToPatient(SqlDataReader reader)

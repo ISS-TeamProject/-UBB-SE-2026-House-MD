@@ -131,5 +131,47 @@ namespace ERManagementSystem.Repositories
                 Status = reader["Status"].ToString()!
             };
         }
+
+
+        public List<(ER_Visit visit, Triage triage)> GetActiveVisitsWithTriage()
+        {
+            string sql = @"
+        SELECT v.Visit_ID, v.Patient_ID, v.Arrival_date_time, v.Chief_Complaint, v.Status,
+               t.Triage_ID, t.Visit_ID AS Triage_Visit_ID, t.Triage_Level, t.Specialization, t.Nurse_ID, t.Triage_Time
+        FROM ER_Visit v
+        INNER JOIN Triage t ON v.Visit_ID = t.Visit_ID
+        WHERE v.Status NOT IN ('TRANSFERRED', 'CLOSED')";
+
+            var list = new List<(ER_Visit, Triage)>();
+
+            using var reader = _sqlHelper.ExecuteReader(sql);
+            while (reader.Read())
+            {
+                var visit = new ER_Visit
+                {
+                    Visit_ID = reader.GetInt32(reader.GetOrdinal("Visit_ID")),
+                    Patient_ID = reader.GetString(reader.GetOrdinal("Patient_ID")),
+                    Arrival_date_time = reader.GetDateTime(reader.GetOrdinal("Arrival_date_time")),
+                    Chief_Complaint = reader.GetString(reader.GetOrdinal("Chief_Complaint")),
+                    Status = reader.GetString(reader.GetOrdinal("Status"))
+                };
+
+                var triage = new Triage
+                {
+                    Triage_ID = reader.GetInt32(reader.GetOrdinal("Triage_ID")),
+                    Visit_ID = reader.GetInt32(reader.GetOrdinal("Triage_Visit_ID")),
+                    Triage_Level = reader.GetInt32(reader.GetOrdinal("Triage_Level")),
+                    Specialization = reader.GetString(reader.GetOrdinal("Specialization")),
+                    Nurse_ID = reader.GetInt32(reader.GetOrdinal("Nurse_ID")),
+                    Triage_Time = reader.GetDateTime(reader.GetOrdinal("Triage_Time"))
+                };
+
+                list.Add((visit, triage));
+            }
+
+            return list;
+        }
     }
+
+
 }

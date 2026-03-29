@@ -10,20 +10,21 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="40,32,40,40">
         <StackPanel MaxWidth="560" HorizontalAlignment="Left" Spacing="20">
 
-            <!-- Title -->
+            <!-- Title — uses PageTitleTextBlockStyle from Controls.xaml -->
             <TextBlock
                 Text="Patient Registration"
-                Style="{StaticResource TitleTextBlockStyle}"/>
+                Style="{StaticResource PageTitleTextBlockStyle}"/>
 
             <!-- Patient ID (CNP) -->
             <StackPanel Spacing="4">
                 <TextBlock Text="Patient ID (CNP)" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                 <TextBox
-                    PlaceholderText="Enter CNP"
-                    Text="{x:Bind ViewModel.PatientId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    PlaceholderText="13-digit CNP"
+                    Text="{x:Bind ViewModel.PatientId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    MaxLength="13"/>
                 <TextBlock
                     Text="{x:Bind ViewModel.PatientIdError, Mode=OneWay}"
-                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                    Foreground="{StaticResource DangerBrush}"
                     FontSize="12"/>
             </StackPanel>
 
@@ -35,7 +36,7 @@
                     Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock
                     Text="{x:Bind ViewModel.FirstNameError, Mode=OneWay}"
-                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                    Foreground="{StaticResource DangerBrush}"
                     FontSize="12"/>
             </StackPanel>
 
@@ -47,19 +48,21 @@
                     Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock
                     Text="{x:Bind ViewModel.LastNameError, Mode=OneWay}"
-                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                    Foreground="{StaticResource DangerBrush}"
                     FontSize="12"/>
             </StackPanel>
 
             <!-- Date of Birth -->
             <StackPanel Spacing="4">
                 <TextBlock Text="Date of Birth" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                <DatePicker
-                    Date="{x:Bind ViewModel.DateOfBirth, Mode=TwoWay}"
-                    HorizontalAlignment="Stretch"/>
+                <CalendarDatePicker
+                    x:Name="DateOfBirthPicker"
+                    PlaceholderText="Select date of birth"
+                    HorizontalAlignment="Stretch"
+                    DateChanged="DateOfBirthPicker_DateChanged"/>
                 <TextBlock
                     Text="{x:Bind ViewModel.DateOfBirthError, Mode=OneWay}"
-                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                    Foreground="{StaticResource DangerBrush}"
                     FontSize="12"/>
             </StackPanel>
 
@@ -81,10 +84,11 @@
                 <TextBlock Text="Phone" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                 <TextBox
                     PlaceholderText="07XXXXXXXX"
-                    Text="{x:Bind ViewModel.Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    Text="{x:Bind ViewModel.Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    MaxLength="10"/>
                 <TextBlock
                     Text="{x:Bind ViewModel.PhoneError, Mode=OneWay}"
-                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                    Foreground="{StaticResource DangerBrush}"
                     FontSize="12"/>
             </StackPanel>
 
@@ -92,8 +96,12 @@
             <StackPanel Spacing="4">
                 <TextBlock Text="Emergency Contact" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                 <TextBox
-                    PlaceholderText="Name and phone number"
+                    PlaceholderText="Firstname Lastname - 07XXXXXXXX"
                     Text="{x:Bind ViewModel.EmergencyContact, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock
+                    Text="{x:Bind ViewModel.EmergencyContactError, Mode=OneWay}"
+                    Foreground="{StaticResource DangerBrush}"
+                    FontSize="12"/>
             </StackPanel>
 
             <!-- Chief Complaint -->
@@ -107,11 +115,11 @@
                     MinHeight="80"/>
                 <TextBlock
                     Text="{x:Bind ViewModel.ChiefComplaintError, Mode=OneWay}"
-                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                    Foreground="{StaticResource DangerBrush}"
                     FontSize="12"/>
             </StackPanel>
 
-            <!-- Buttons -->
+            <!-- Buttons — uses PrimaryButtonStyle and BaseButtonStyle from Controls.xaml -->
             <StackPanel
                 Orientation="Horizontal"
                 Spacing="12"
@@ -125,7 +133,7 @@
                 <Button
                     Content="Register"
                     Command="{x:Bind ViewModel.RegisterPatientAndVisitCommand}"
-                    Style="{StaticResource AccentButtonStyle}"/>
+                    Style="{StaticResource PrimaryButtonStyle}"/>
 
             </StackPanel>
 
