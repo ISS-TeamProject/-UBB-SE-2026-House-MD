@@ -29,10 +29,7 @@ namespace ERManagementSystem.ViewModels
         // XamlRoot needed to show ContentDialogs — set by the View
         public Microsoft.UI.Xaml.XamlRoot? XamlRoot { get; set; }
 
-        // -----------------------------------------------------------------------
         // Observable Properties
-        // -----------------------------------------------------------------------
-
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasSelectedVisit))]
         private VisitSummary? selectedVisit;
@@ -51,18 +48,14 @@ namespace ERManagementSystem.ViewModels
 
         public bool HasSelectedVisit => SelectedVisit != null;
 
-        // -----------------------------------------------------------------------
         // Constructor
-        // -----------------------------------------------------------------------
         public TransferLogViewModel(TransferService transferService, SqlHelper sqlHelper)
         {
             _transferService = transferService;
             _sqlHelper = sqlHelper;
         }
 
-        // -----------------------------------------------------------------------
-        // LoadLogs(): void  — class diagram  (Task 6.13)
-        // -----------------------------------------------------------------------
+        // LoadLogs(): void  (Task 6.13)
         [RelayCommand]
         public void LoadLogs()
         {
@@ -86,9 +79,7 @@ namespace ERManagementSystem.ViewModels
             LoadLogs();
         }
 
-        // -----------------------------------------------------------------------
         // Task 6.7 — Load visits in IN_EXAMINATION status
-        // -----------------------------------------------------------------------
         [RelayCommand]
         public void LoadData()
         {
@@ -119,13 +110,11 @@ namespace ERManagementSystem.ViewModels
             }
         }
 
-        // -----------------------------------------------------------------------
-        // SendPatientData(): void  — class diagram  (Tasks 6.7, 6.9, 6.10)
-        // -----------------------------------------------------------------------
+        // SendPatientData(): void  (Tasks 6.7, 6.9, 6.10)
         [RelayCommand]
         public async void SendPatientData()
         {
-            // --- Task 6.9: Validation with WinUI 3 ContentDialog ---
+            // Task 6.9: Validation with WinUI 3 ContentDialog 
             if (SelectedVisit == null)
             {
                 await ShowDialog("Validation Error", "Please select a visit before sending.");
@@ -171,13 +160,10 @@ namespace ERManagementSystem.ViewModels
             {
                 // Task 6.13: always refresh after every attempt
                 LoadLogs();
-                LoadData();
             }
         }
 
-        // -----------------------------------------------------------------------
         // Task 6.11 — Retry failed transfer
-        // -----------------------------------------------------------------------
         [RelayCommand]
         public async void RetryTransfer()
         {
@@ -205,13 +191,10 @@ namespace ERManagementSystem.ViewModels
             finally
             {
                 LoadLogs();
-                LoadData();
             }
         }
 
-        // -----------------------------------------------------------------------
         // Task 6.9 helper — WinUI 3 ContentDialog
-        // -----------------------------------------------------------------------
         private async System.Threading.Tasks.Task ShowDialog(string title, string message)
         {
             if (XamlRoot == null) return;
@@ -227,9 +210,7 @@ namespace ERManagementSystem.ViewModels
         }
     }
 
-    // -----------------------------------------------------------------------
     // VisitSummary — lightweight helper for the eligible visits DataGrid
-    // -----------------------------------------------------------------------
     public class VisitSummary
     {
         public int Visit_ID { get; set; }

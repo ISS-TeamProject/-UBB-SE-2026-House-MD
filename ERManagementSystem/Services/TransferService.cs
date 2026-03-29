@@ -11,15 +11,13 @@ namespace ERManagementSystem.Services
 {
     /// <summary>
     /// Tasks 6.4, 6.5, 6.6, 6.10, 6.11, 6.12
-    ///
-    /// Methods match the class diagram exactly:
     ///   SendPatientData(visitId: int): Transfer_Log
     ///   LogTransfer(int, status: string): void
     ///   GetLogs(visitId: int): List
     ///
-    /// Feature 8: simulates external API call by saving JSON to a local file.
-    /// Task 6.5: stores the file path in the Transfer_Log table.
-    /// Feature 9: every attempt is logged with SUCCESS / FAILED / RETRYING.
+    /// Feature 8: simulates external API call by saving JSON to a local file
+    /// Task 6.5: stores the file path in the Transfer_Log table
+    /// Feature 9: every attempt is logged with SUCCESS / FAILED / RETRYING
     /// </summary>
     public class TransferService
     {
@@ -41,14 +39,12 @@ namespace ERManagementSystem.Services
             Directory.CreateDirectory(_transferDirectory);
         }
 
-        // -----------------------------------------------------------------------
         // SendPatientData(visitId: int): Transfer_Log
         // Tasks 6.4 & 6.5
-        // -----------------------------------------------------------------------
         /// <summary>
-        /// Builds the patient data package, serializes to JSON, saves to local file.
-        /// Task 6.5: stores the file path in the log entry.
-        /// Logs the attempt. Returns the log entry.
+        /// Builds the patient data package, serializes to JSON, saves to local file
+        /// Task 6.5: stores the file path in the log entry
+        /// Logs the attempt. Returns the log entry
         /// </summary>
         public Transfer_Log SendPatientData(int visitId)
         {
@@ -89,10 +85,8 @@ namespace ERManagementSystem.Services
             return log;
         }
 
-        // -----------------------------------------------------------------------
         // LogTransfer(int, status: string): void 
         // Task 6.6
-        // -----------------------------------------------------------------------
         /// <summary>
         /// Creates and persists a Transfer_Log entry with the given visitId and status.
         /// Each attempt is a separate log row.
@@ -110,10 +104,8 @@ namespace ERManagementSystem.Services
             _transferLogRepository.Add(log);
         }
 
-        // -----------------------------------------------------------------------
         // GetLogs(visitId: int): List 
         // Task 6.12
-        // -----------------------------------------------------------------------
         /// <summary>
         /// Returns all Transfer_Log entries for a visit.
         /// Called by TransferLogViewModel.LoadLogs().
@@ -123,9 +115,7 @@ namespace ERManagementSystem.Services
             return _transferLogRepository.GetByVisitId(visitId);
         }
 
-        // -----------------------------------------------------------------------
         // Task 6.11 — Retry mechanism
-        // -----------------------------------------------------------------------
         /// <summary>
         /// Logs a RETRYING entry, then re-attempts SendPatientData.
         /// Each attempt is a separate log row.
@@ -136,9 +126,7 @@ namespace ERManagementSystem.Services
             return SendPatientData(visitId);
         }
 
-        // -----------------------------------------------------------------------
         // Task 6.10 — Mark Patient.Transferred = true
-        // -----------------------------------------------------------------------
         /// <summary>
         /// Sets Patient.Transferred = 1 after a successful transfer.
         /// Hand-written UPDATE query via SqlHelper.
@@ -156,16 +144,12 @@ namespace ERManagementSystem.Services
                 new SqlParameter("@VisitId", visitId));
         }
 
-        // -----------------------------------------------------------------------
         // Task 6.10 — Transition visit IN_EXAMINATION → TRANSFERRED
-        // -----------------------------------------------------------------------
         public void TransitionVisitToTransferred(int visitId)
         {
             _stateManagementService.ChangeVisitStatus(visitId, "TRANSFERRED");
         }
-        // -----------------------------------------------------------------------
         // Task 6.3 — Build PatientDataPackage via hand-written JOIN query
-        // -----------------------------------------------------------------------
         private PatientDataPackage BuildPatientDataPackage(int visitId)
         {
             const string sql = @"

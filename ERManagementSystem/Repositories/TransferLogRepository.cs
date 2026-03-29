@@ -8,15 +8,13 @@ namespace ERManagementSystem.Repositories
 {
     /// <summary>
     /// Task 6.2 - TransferLogRepository.
-    /// Methods match the class diagram exactly:
     ///   Add(log: Transfer_Log): void
     ///   GetByVisitId(id: int): List
     ///   GetAll(): List           
     ///   DeleteLog(log: Transfer_Log): void
     ///
-    /// Uses SqlHelper (team pattern). Hand-written SQL only. No ORM.
+    /// Uses SqlHelper. Hand-written SQL only. No ORM.
     /// All SqlDataReader mapping is manual.
-    /// Column names match schema.sql exactly.
     /// </summary>
     public class TransferLogRepository
     {
@@ -27,9 +25,6 @@ namespace ERManagementSystem.Repositories
             _sqlHelper = sqlHelper;
         }
 
-        // -----------------------------------------------------------------------
-        // Add(log: Transfer_Log): void  — class diagram
-        // -----------------------------------------------------------------------
         /// <summary>
         /// Executes a parameterized INSERT INTO Transfer_Log.
         /// Sets log.Transfer_ID to the generated identity value.
@@ -55,9 +50,7 @@ namespace ERManagementSystem.Repositories
                 log.Transfer_ID = reader.GetInt32(0);
         }
 
-        // -----------------------------------------------------------------------
         // GetByVisitId(id: int): List 
-        // -----------------------------------------------------------------------
         /// <summary>
         /// SELECT all Transfer_Log entries for a given Visit_ID.
         /// Results ordered newest first.
@@ -80,9 +73,7 @@ namespace ERManagementSystem.Repositories
             return logs;
         }
 
-        // -----------------------------------------------------------------------
-        // GetAll(): List  
-        // -----------------------------------------------------------------------
+        // GetAll(): List 
         /// <summary>
         /// SELECT all Transfer_Log entries across all visits.
         /// Ordered newest first.
@@ -102,9 +93,7 @@ namespace ERManagementSystem.Repositories
             return logs;
         }
 
-        // -----------------------------------------------------------------------
         // DeleteLog(log: Transfer_Log): void 
-        // -----------------------------------------------------------------------
         /// <summary>
         /// DELETE a Transfer_Log entry by its Transfer_ID.
         /// </summary>
@@ -116,9 +105,7 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@TransferId", log.Transfer_ID));
         }
 
-        // -----------------------------------------------------------------------
         // UpdateStatus — internal helper used by retry mechanism
-        // -----------------------------------------------------------------------
         public void UpdateStatus(int transferId, string newStatus)
         {
             const string sql = @"
@@ -131,9 +118,7 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@TransferId", transferId));
         }
 
-        // -----------------------------------------------------------------------
         // Manual SqlDataReader → Transfer_Log mapping
-        // -----------------------------------------------------------------------
         private static Transfer_Log MapFromReader(SqlDataReader reader)
         {
             return new Transfer_Log

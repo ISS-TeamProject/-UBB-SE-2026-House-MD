@@ -8,13 +8,10 @@ namespace ERManagementSystem.Models
     ///
     /// Fields are assembled via a hand-written JOIN query across:
     /// Patient, ER_Visit, Triage, Triage_Parameters, Examination
-    ///
-    /// Column names in the JOIN query match schema.sql exactly.
     /// </summary>
     public class PatientDataPackage
     {
         // --- From Patient table ---
-        // Patient_ID in schema is NVARCHAR(20) used as CNP
         public string CNP { get; set; } = string.Empty;
         public string First_Name { get; set; } = string.Empty;
         public string Last_Name { get; set; } = string.Empty;

@@ -4,7 +4,6 @@ namespace ERManagementSystem.Models
 {
     /// <summary>
     /// Task 6.1 - Transfer_Log model.
-    /// Properties match schema.sql and class diagram exactly.
     /// Task 6.5 - FilePath stores the path to the saved JSON file.
     ///
     /// DB columns: Transfer_ID, Visit_ID, Transfer_Time, Target_System, Status
