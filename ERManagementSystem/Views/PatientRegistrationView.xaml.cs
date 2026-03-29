@@ -1,5 +1,6 @@
 using ERManagementSystem.ViewModels;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Navigation;
 
 namespace ERManagementSystem.Views
@@ -20,15 +21,34 @@ namespace ERManagementSystem.Views
             if (e.Parameter is PatientRegistrationViewModel vm)
             {
                 ViewModel = vm;
+                Bindings.Update();
             }
         }
 
-        // SelectedItem on a ComboBox with ComboBoxItem children doesn't bind cleanly
-        // to a string property in WinUI 3 — we push the value manually here instead.
+        // DatePicker.Date is non-nullable DateTimeOffset in WinUI 3 —
+        // cannot bind directly to DateTimeOffset?. Push the value manually
+        // and set HasDateOfBirth = true so the ViewModel knows a date was picked.
+        private void DateOfBirthPicker_DateChanged(
+            CalendarDatePicker sender,
+            CalendarDatePickerDateChangedEventArgs args)
+        {
+            if (ViewModel == null) return;
+
+            if (args.NewDate.HasValue)
+            {
+                ViewModel.DateOfBirth = args.NewDate.Value;
+                ViewModel.HasDateOfBirth = true;
+            }
+            else
+            {
+                ViewModel.HasDateOfBirth = false;
+            }
+        }
+
+        // Gender — same pattern as before
         private void GenderComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ViewModel == null)
-                return;
+            if (ViewModel == null) return;
 
             if (sender is ComboBox box && box.SelectedItem is ComboBoxItem item)
                 ViewModel.Gender = item.Tag?.ToString() ?? string.Empty;
