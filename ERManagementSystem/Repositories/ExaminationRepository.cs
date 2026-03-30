@@ -17,12 +17,11 @@ namespace ERManagementSystem.Repositories
         /// Inserts a new Examination record into the database.
         public void Add(Examination exam)
         {
-            string sql = @"INSERT INTO Examination (Exam_ID, Visit_ID, Doctor_ID, Exam_Time, Room_ID, Notes)
-                           VALUES (@Exam_ID, @Visit_ID, @Doctor_ID, @Exam_Time, @Room_ID, @Notes)";
+            string sql = @"INSERT INTO Examination (Visit_ID, Doctor_ID, Exam_Time, Room_ID, Notes)
+                           VALUES (@Visit_ID, @Doctor_ID, @Exam_Time, @Room_ID, @Notes)";
 
             var parameters = new SqlParameter[]
             {
-                new SqlParameter("@Exam_ID", exam.Visit_ID),
                 new SqlParameter("@Visit_ID", exam.Visit_ID),
                 new SqlParameter("@Doctor_ID", exam.Doctor_ID),
                 new SqlParameter("@Exam_time", exam.Exam_Time),
@@ -53,7 +52,7 @@ namespace ERManagementSystem.Repositories
                     Exam_ID = reader.GetInt32(reader.GetOrdinal("Exam_ID")),
                     Visit_ID = reader.GetInt32(reader.GetOrdinal("Visit_ID")),
                     Doctor_ID = reader.GetInt32(reader.GetOrdinal("Doctor_ID")),
-                    Exam_Time = reader.GetDateTime(reader.GetOrdinal("Exam_time")),
+                    Exam_Time = reader.GetDateTime(reader.GetOrdinal("Exam_Time")),
                     Room_ID = reader.GetInt32(reader.GetOrdinal("Room_ID")),
                     Notes = reader.GetString(reader.GetOrdinal("Notes"))
                 };

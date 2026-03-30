@@ -27,7 +27,7 @@ namespace ERManagementSystem.Services
         }
 
 
-        // need doctor class so we can return Doctor Instance 
+
         public Doctor GetDoctorByID(int doctorID)
         {
             return doctorID switch

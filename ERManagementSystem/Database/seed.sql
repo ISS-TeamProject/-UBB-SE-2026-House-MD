@@ -1,4 +1,4 @@
-﻿-- ============================================
+-- ============================================
 -- ER Management System - seed.sql
 -- Sample data for local SQL Server
 -- ============================================
@@ -68,7 +68,7 @@ VALUES
     ('6020205123467', '2026-03-26 08:40:00', 'Shortness of breath',        'TRIAGED'),
     ('1980315123478', '2026-03-26 09:05:00', 'Head trauma after fall',     'WAITING_FOR_ROOM'),
     ('2990412123489', '2026-03-26 09:20:00', 'Chest pain',                 'IN_EXAMINATION'),
-    ('1970525123490', '2026-03-26 09:45:00', 'Broken arm',                 'WAITING_FOR_DOCTOR'),
+    ('1970525123490', '2026-03-26 09:45:00', 'Broken arm',                 'IN_ROOM'),
     ('6030618123501', '2026-03-26 10:10:00', 'High fever and cough',       'IN_EXAMINATION'),
     ('1960721123512', '2026-03-26 10:35:00', 'Dizziness',                  'TRANSFERRED'),
     ('2950823123523', '2026-03-26 11:00:00', 'Knee injury',                'CLOSED'),
@@ -78,7 +78,7 @@ VALUES
     ('6020205123467', '2026-03-27 07:50:00', 'Allergic reaction',          'IN_EXAMINATION'),
     ('1980315123478', '2026-03-27 08:10:00', 'Back pain',                  'REGISTERED'),
     ('2990412123489', '2026-03-27 08:30:00', 'Seizure episode',            'WAITING_FOR_ROOM'),
-    ('2950823123523', '2026-03-27 08:45:00', 'Ankle sprain',               'TRIAGED');
+    ('2950823123523', '2026-03-27 08:45:00', 'Ankle sprain',               'IN_ROOM');
 GO
 
 -- ============================================
@@ -166,9 +166,9 @@ GO
 INSERT INTO dbo.Examination
     (Visit_ID, Doctor_ID, Exam_Time, Room_ID, Notes)
 VALUES
-    (4,  201, '2026-03-26 09:35:00', 8, 'Chest pain under observation. ECG and vitals monitoring recommended.'),
-    (6,  202, '2026-03-26 10:25:00', 5, 'Fever, cough, and mild respiratory distress. Pulmonary evaluation performed.'),
-    (12, 203, '2026-03-27 08:05:00', 3, 'Allergic reaction treated with antihistamines and monitored for airway stability.');
+    (6,  102, '2026-03-26 10:25:00', 5, 'Fever, cough, and mild respiratory distress. Pulmonary evaluation performed.'),
+    (11, 104, '2026-03-27 07:45:00', 3, 'Vomiting and dehydration. IV fluids administered. Monitoring ongoing.'),
+    (12, 103, '2026-03-27 08:05:00', 3, 'Allergic reaction treated with antihistamines and monitored for airway stability.');
 GO
 
 -- ============================================
