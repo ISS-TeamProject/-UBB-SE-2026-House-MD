@@ -9,6 +9,7 @@ using ERManagementSystem.Repositories;
 
 namespace ERManagementSystem.Services
 {
+    using System;
     public class MockStaffService
     {
         // Simulates requesting a doctor from Staff Management system
@@ -25,10 +26,10 @@ namespace ERManagementSystem.Services
             };
         }
 
-        // Returns hardcoded doctor details (name, speciality)
+
+        // need doctor class so we can return Doctor Instance 
         public Doctor GetDoctorByID(int doctorID)
         {
-            // Create hardcoded doctor objects based on ID
             return doctorID switch
             {
                 101 => new Doctor { DoctorID = 101, Name = "Dr. Smith", Specialty = "Cardiology" },

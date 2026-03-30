@@ -25,9 +25,8 @@ namespace ERManagementSystem.Models
             Room_ID = roomID;
             Notes = notes;
         }
+        
         //Examination records are already in schema.sql
-        //TODO: add validations
-
         public bool Validate(out List<string> errors)
         {
             

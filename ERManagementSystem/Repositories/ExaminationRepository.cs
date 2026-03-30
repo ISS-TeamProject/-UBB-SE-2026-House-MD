@@ -75,5 +75,34 @@ namespace ERManagementSystem.Repositories
 
             _sqlHelper.ExecuteNonQuery(query, parameters);
         }
+
+        public Triage_Parameters GetTriageWithParameters(int triageID)
+        {
+            string query = @"
+                SELECT tp.*
+                FROM Triage t
+                JOIN Triage_Parameters tp ON t.Triage_ID = tp.Triage_ID
+                WHERE t.Triage_ID = @TriageID";
+
+            var parameters = new[] { new SqlParameter("@TriageID", triageID) };
+            
+            using var reader = _sqlHelper.ExecuteReader(query, parameters);
+            
+            if (reader.Read())
+            {
+                return new Triage_Parameters
+                {
+                    Triage_ID = reader.GetInt32(reader.GetOrdinal("Triage_ID")),
+                    Consciousness = reader.GetInt32(reader.GetOrdinal("Consciousness")),
+                    Breathing = reader.GetInt32(reader.GetOrdinal("Breathing")),
+                    Bleeding = reader.GetInt32(reader.GetOrdinal("Bleeding")),
+                    Injury_Type = reader.GetInt32(reader.GetOrdinal("Injury_Type")),
+                    Pain_Level = reader.GetInt32(reader.GetOrdinal("Pain_Level"))
+                };
+            }
+            
+            return null;
+        }
+
     }
 }
