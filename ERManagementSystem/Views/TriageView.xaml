@@ -20,30 +20,51 @@
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Registered Visits"
-                               Style="{StaticResource SectionTitleTextBlockStyle}" />
+                   Style="{StaticResource SectionTitleTextBlockStyle}" />
 
                     <controls:DataGrid
-                        x:Name="TriageDataGrid"
-                        ItemsSource="{x:Bind ViewModel.RegisteredVisits, Mode=OneWay}"
-                        SelectedItem="{x:Bind ViewModel.SelectedVisit, Mode=TwoWay}"
-                        AutoGenerateColumns="False"
-                        IsReadOnly="True"
-                        SelectionMode="Single"
-                        CanUserSortColumns="True"
-                        MinHeight="180"
-                        MaxHeight="300">
+            x:Name="TriageDataGrid"
+            ItemsSource="{x:Bind ViewModel.RegisteredVisits, Mode=OneWay}"
+            SelectedItem="{x:Bind ViewModel.SelectedVisit, Mode=TwoWay}"
+            AutoGenerateColumns="False"
+            IsReadOnly="True"
+            SelectionMode="Single"
+            CanUserSortColumns="True"
+            MinHeight="180"
+            MaxHeight="300"
+            HorizontalScrollBarVisibility="Auto">
+
                         <controls:DataGrid.Columns>
+                            <!-- Visit ID: slightly bigger -->
                             <controls:DataGridTextColumn Header="Visit ID"
-                                Binding="{Binding Visit_ID}" Width="80" />
+                                             Binding="{Binding Visit_ID}" 
+                                             Width="100" />
+
+                            <!-- Patient ID -->
                             <controls:DataGridTextColumn Header="Patient ID"
-                                Binding="{Binding Patient_ID}" Width="160" />
+                                             Binding="{Binding Patient_ID}" 
+                                             Width="160" />
+
+                            <!-- Arrival Time -->
                             <controls:DataGridTextColumn Header="Arrival Time"
-                                Binding="{Binding Arrival_date_time}"
-                                Width="180" />
+                                             Binding="{Binding Arrival_date_time}" 
+                                             Width="180" />
+
+                            <!-- Chief Complaint: auto-size to content + wrap text -->
                             <controls:DataGridTextColumn Header="Chief Complaint"
-                                Binding="{Binding Chief_Complaint}" Width="*" />
+                                             Binding="{Binding Chief_Complaint}" 
+                                             Width="SizeToCells">
+                                <controls:DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                    </Style>
+                                </controls:DataGridTextColumn.ElementStyle>
+                            </controls:DataGridTextColumn>
+
+                            <!-- Status -->
                             <controls:DataGridTextColumn Header="Status"
-                                Binding="{Binding Status}" Width="120" />
+                                             Binding="{Binding Status}" 
+                                             Width="120" />
                         </controls:DataGrid.Columns>
                     </controls:DataGrid>
                 </StackPanel>
