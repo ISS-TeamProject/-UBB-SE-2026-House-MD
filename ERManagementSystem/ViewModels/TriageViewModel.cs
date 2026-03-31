@@ -183,9 +183,21 @@ namespace ERManagementSystem.ViewModels
         }
 
         [RelayCommand]
-        private void CancelTriage()
+        private async Task CancelTriage()
         {
-            // No-op for now
+            if (SelectedVisit == null)
+            {
+                await ShowDialog("No Visit Selected",
+                    "Please select a visit from the list before performing triage.");
+                return;
+            }
+
+            _stateService.CloseVisit(SelectedVisit.Visit_ID);
+
+            await ShowDialog("Visit closed",
+                $"The visit {SelectedVisit.Visit_ID} has been closed!");
+
+            LoadVisitsForTriage();
         }
 
         // ── Helpers ─────────────────────────────────────────────────────────
