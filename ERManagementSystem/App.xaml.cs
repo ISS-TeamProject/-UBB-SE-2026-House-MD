@@ -6,6 +6,8 @@ using ERManagementSystem.ViewModels;
 using ERManagementSystem.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using System;
+using System.Threading.Tasks;
 
 namespace ERManagementSystem
 {
@@ -20,6 +22,7 @@ namespace ERManagementSystem
         {
             this.InitializeComponent();
             ConfigureServices();
+            ConfigureGlobalExceptionHandling(); // 1.11 - Global exception handling - for unexpected issues that escape everything else
         }
 
         private void ConfigureServices()
@@ -57,6 +60,43 @@ namespace ERManagementSystem
         {
             MainAppWindow = new MainWindow();
             MainAppWindow.Activate();
+        }
+
+        private void ConfigureGlobalExceptionHandling()
+        {
+            this.UnhandledException += App_UnhandledException;
+
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+        }
+
+        private async void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            Logger.Error("Unhandled UI exception.", e.Exception);
+            e.Handled = true;
+
+            await ErrorDialogHelper.ShowErrorAsync(
+                "Unexpected Error",
+                "Something went wrong. The error was logged."
+            );
+        }
+
+        private void CurrentDomain_UnhandledException(object? sender, System.UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception ex)
+            {
+                Logger.Error("Unhandled non-UI exception.", ex);
+            }
+            else
+            {
+                Logger.Error("Unhandled non-UI exception with unknown exception object.");
+            }
+        }
+
+        private void TaskScheduler_UnobservedTaskException(object? sender, System.Threading.Tasks.UnobservedTaskExceptionEventArgs e)
+        {
+            Logger.Error("Unobserved task exception.", e.Exception);
+            e.SetObserved();
         }
     }
 }
