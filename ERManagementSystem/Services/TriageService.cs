@@ -1,10 +1,7 @@
 using ERManagementSystem.Models;
 using ERManagementSystem.Repositories;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ERManagementSystem.Helpers;
 
 namespace ERManagementSystem.Services
 {
@@ -54,37 +51,49 @@ namespace ERManagementSystem.Services
         /// </summary>
         public Triage CreateTriage(int visitId, Triage_Parameters parameters)
         {
-            int? nurseId = RequestAvailableNurse();
-            if (nurseId == null)
-                throw new InvalidOperationException("No available nurse.");
+            Logger.Info($"[TriageService] Starting triage for visit {visitId}");
 
-            int triageLevel = CalculateTriageLevel(parameters);
-            string specialization = DetermineSpecialization(parameters);
-
-            Triage triage = new Triage
+            try
             {
-                Visit_ID = visitId,
-                Triage_Level = triageLevel,
-                Specialization = specialization,
-                Nurse_ID = nurseId.Value,
-                Triage_Time = DateTime.Now
-            };
+                int? nurseId = RequestAvailableNurse();
+                if (nurseId == null)
+                {
+                    Logger.Warning($"[TriageService] No available nurse for visit {visitId}");
+                    throw new InvalidOperationException("No available nurse.");
+                }
 
-            
-            int triageId = _triageRepository.AddAndReturnId(triage);
+                int triageLevel = CalculateTriageLevel(parameters);
+                string specialization = DetermineSpecialization(parameters);
 
-            
-            parameters.Triage_ID = triageId;
+                Logger.Info($"[TriageService] Calculated level {triageLevel}, specialization {specialization} for visit {visitId}");
 
-            
-            CreateTriageParameters(parameters);
+                Triage triage = new Triage
+                {
+                    Visit_ID = visitId,
+                    Triage_Level = triageLevel,
+                    Specialization = specialization,
+                    Nurse_ID = nurseId.Value,
+                    Triage_Time = DateTime.Now
+                };
 
-            triage.Triage_ID = triageId;
+                int triageId = _triageRepository.Add(triage);
 
-            _stateService.ChangeVisitStatus(visitId, "TRIAGED");
+                parameters.Triage_ID = triageId;
+                _triageParametersRepository.Add(parameters);
 
+                triage.Triage_ID = triageId;
 
-            return triage;
+                _stateService.ChangeVisitStatus(visitId, "TRIAGED");
+
+                Logger.Info($"[TriageService] Completed triage {triageId} for visit {visitId}");
+
+                return triage;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"[TriageService] Failed triage process for visit {visitId}", ex);
+                throw;
+            }
         }
 
         public Triage? GetByVisitId(int visitId)

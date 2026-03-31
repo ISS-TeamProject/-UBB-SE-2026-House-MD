@@ -116,6 +116,13 @@ namespace ERManagementSystem.ViewModels
                 return;
             }
 
+            if (SelectedVisit.Status == ER_Visit.VisitStatus.TRIAGED)
+            {
+                await ShowDialog("Triage already performed",
+                    "The triage for this visit has already been performed.");
+                return;
+            }
+
             if (Consciousness == 0 || Breathing == 0 || Bleeding == 0 ||
                 InjuryType == 0 || PainLevel == 0)
             {
@@ -123,6 +130,8 @@ namespace ERManagementSystem.ViewModels
                     "Please select a value for all 5 triage parameters.");
                 return;
             }
+
+            
 
             try
             {
