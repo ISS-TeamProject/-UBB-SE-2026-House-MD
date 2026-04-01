@@ -1,4 +1,4 @@
-﻿using ERManagementSystem.DataAccess;
+using ERManagementSystem.DataAccess;
 using ERManagementSystem.Helpers;
 using ERManagementSystem.Repositories;
 using ERManagementSystem.Services;
@@ -42,16 +42,29 @@ namespace ERManagementSystem
             services.AddTransient<PatientRepository>();
             services.AddTransient<ERVisitRepository>();
 
+            // ── Repositories (Triage) ─────────────────────────────────────────
+            services.AddTransient<TriageRepository>();
+            services.AddTransient<TriageParametersRepository>();
+
             // ── Services (Miruna's: Registration & State) ────────────────────
             services.AddTransient<RegistrationService>();
             services.AddTransient<StateManagementService>();
 
+            // ── Services (Triage & Queue) ────────────────────────────────────
+            services.AddSingleton<NurseService>();
+            services.AddTransient<TriageService>();
+            services.AddTransient<QueueService>();
+
             // ── ViewModels ───────────────────────────────────────────────────
             services.AddSingleton<MainWindowViewModel>();
             services.AddTransient<PatientRegistrationViewModel>();
+            services.AddTransient<TriageViewModel>();
+            services.AddTransient<QueueViewModel>();
 
             // ── Views ────────────────────────────────────────────────────────
             services.AddTransient<PatientRegistrationView>();
+            services.AddTransient<TriageView>();
+            services.AddTransient<QueueView>();
 
             Services = services.BuildServiceProvider();
         }
