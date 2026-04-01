@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ERManagementSystem.Helpers;
 using ERManagementSystem.Models;
 using ERManagementSystem.Repositories;
@@ -14,6 +15,10 @@ namespace ERManagementSystem.Services
             _erVisitRepository = erVisitRepository;
         }
 
+        public List<ER_Visit> GetByStatus(string status)
+        {
+            return _erVisitRepository.GetByStatus(status);
+        }
      
         public bool CanTransitionTo(string currentStatus, string newStatus)
         {

@@ -51,6 +51,9 @@ namespace ERManagementSystem.Services
         /// </summary>
         public Triage CreateTriage(int visitId, Triage_Parameters parameters)
         {
+
+            parameters.ValidateParameters();
+
             Logger.Info($"[TriageService] Starting triage for visit {visitId}");
 
             try
