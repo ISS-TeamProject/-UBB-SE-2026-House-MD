@@ -73,6 +73,11 @@
                         IsEnabled="{x:Bind ViewModel.CanRetry, Mode=OneWay}"
                         Background="{StaticResource DangerBrush}"
                         Foreground="White"/>
+                <Button Content="Close Visit"
+                        Command="{x:Bind ViewModel.CloseVisitCommand}"
+                        IsEnabled="{x:Bind ViewModel.HasSelectedVisit, Mode=OneWay}"
+                        Background="#5C0A16"
+                        Foreground="White"/>
                 <Button Content="Refresh"
                         Command="{x:Bind ViewModel.LoadDataCommand}"/>
             </StackPanel>

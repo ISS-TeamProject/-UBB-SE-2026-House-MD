@@ -14,27 +14,7 @@ namespace ERManagementSystem.Repositories
             _sqlHelper = sqlHelper;
         }
 
-        /// <summary>
-        /// Inserts a new Triage record into the database.
-        /// </summary>
-        public void Add(Triage triage)
-        {
-            string sql = @"INSERT INTO Triage (Visit_ID, Triage_Level, Specialization, Nurse_ID, Triage_Time)
-                           VALUES (@Visit_ID, @Triage_Level, @Specialization, @Nurse_ID, @Triage_Time)";
-
-            var parameters = new SqlParameter[]
-            {
-                new SqlParameter("@Visit_ID", triage.Visit_ID),
-                new SqlParameter("@Triage_Level", triage.Triage_Level),
-                new SqlParameter("@Specialization", triage.Specialization),
-                new SqlParameter("@Nurse_ID", triage.Nurse_ID),
-                new SqlParameter("@Triage_Time", triage.Triage_Time)
-            };
-
-            _sqlHelper.ExecuteNonQuery(sql, parameters);
-        }
-
-        public int AddAndReturnId(Triage triage)
+        public int Add(Triage triage)
         {
             string sql = @"
             INSERT INTO Triage (Visit_ID, Triage_Level, Specialization, Nurse_ID, Triage_Time)
@@ -50,14 +30,27 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Triage_Time", triage.Triage_Time)
             };
 
-            // Use ExecuteReader instead of ExecuteScalar
-            using var reader = _sqlHelper.ExecuteReader(sql, parameters);
-            if (reader.Read())
-            {
-                return reader.GetInt32(reader.GetOrdinal("Triage_ID"));
-            }
+            Logger.Info($"[TriageRepository] Creating triage for visit {triage.Visit_ID}");
 
-            throw new InvalidOperationException("Failed to insert Triage and retrieve ID.");
+            try
+            {
+                using var reader = _sqlHelper.ExecuteReader(sql, parameters);
+
+                if (reader.Read())
+                {
+                    int id = reader.GetInt32(reader.GetOrdinal("Triage_ID"));
+                    Logger.Info($"[TriageRepository] Created triage {id} for visit {triage.Visit_ID}");
+                    return id;
+                }
+
+                Logger.Warning($"[TriageRepository] Insert returned no ID for visit {triage.Visit_ID}");
+                throw new InvalidOperationException("Failed to insert Triage and retrieve ID.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"[TriageRepository] Error inserting triage for visit {triage.Visit_ID}", ex);
+                throw;
+            }
         }
 
         /// <summary>
