@@ -53,5 +53,33 @@ namespace ERManagementSystem.Services
             
             _erVisitRepository.UpdateStatus(visitId, newStatus);
         }
+
+        
+
+        private static readonly string[] AllowedClosingStates = new[]
+        {
+        ER_Visit.VisitStatus.IN_EXAMINATION,
+        ER_Visit.VisitStatus.TRIAGED
+};
+
+        public bool CanClose(ER_Visit visit)
+        {
+            return Array.Exists(AllowedClosingStates, s => s == visit.Status);
+        }
+
+        public void CloseVisit(int visitId)
+        {
+            ER_Visit? visit = _erVisitRepository.GetByVisitId(visitId);
+            if (visit == null)
+                throw new InvalidOperationException(
+                    $"ER Visit with ID {visitId} was not found.");
+
+            if (!CanClose(visit))
+                throw new InvalidOperationException(
+                    $"Visit {visitId} cannot be closed from status '{visit.Status}'. " +
+                    $"Allowed states: {string.Join(", ", AllowedClosingStates)}.");
+
+            ChangeVisitStatus(visitId, ER_Visit.VisitStatus.CLOSED);
+        }
     }
 }

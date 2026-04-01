@@ -23,7 +23,7 @@
     <None Remove="Views\TransferLogView.xaml" />
     <None Remove="Views\TriageView.xaml" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -72,6 +72,11 @@
 		  <DependentUpon>TransferLogView.xaml</DependentUpon>
 	  </Compile>
   </ItemGroup>
+	<ItemGroup>
+		<Page Update="Views\VisitDetailsPanel.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
   <ItemGroup>
     <Page Update="Views\ExaminationView.xaml">
       <Generator>MSBuild:Compile</Generator>

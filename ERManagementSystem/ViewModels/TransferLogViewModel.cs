@@ -1,13 +1,14 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using ERManagementSystem.Helpers;
+using ERManagementSystem.Models;
+using ERManagementSystem.Repositories;
+using ERManagementSystem.Services;
+using Microsoft.Data.SqlClient;
+using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.Data.SqlClient;
-using Microsoft.UI.Xaml.Controls;
-using ERManagementSystem.Helpers;
-using ERManagementSystem.Models;
-using ERManagementSystem.Services;
 
 namespace ERManagementSystem.ViewModels
 {
@@ -23,6 +24,11 @@ namespace ERManagementSystem.ViewModels
     /// </summary>
     public partial class TransferLogViewModel : BaseViewModel
     {
+        public Action? ClearGridSelection { get; set; }
+        public Action? RefreshGrid { get; set; }
+        //public Action? ClearGridSelection { get; set; }
+        private readonly TransferLogRepository _transferLogRepository;
+        private readonly StateManagementService _stateManagementService;
         private readonly TransferService _transferService;
         private readonly SqlHelper _sqlHelper;
 
@@ -49,10 +55,13 @@ namespace ERManagementSystem.ViewModels
         public bool HasSelectedVisit => SelectedVisit != null;
 
         // Constructor
-        public TransferLogViewModel(TransferService transferService, SqlHelper sqlHelper)
+        public TransferLogViewModel(TransferService transferService, SqlHelper sqlHelper,
+    StateManagementService stateManagementService, TransferLogRepository transferLogRepository)
         {
             _transferService = transferService;
             _sqlHelper = sqlHelper;
+            _stateManagementService = stateManagementService;
+            _transferLogRepository = transferLogRepository;
         }
 
         // LoadLogs(): void  (Task 6.13)
@@ -83,23 +92,25 @@ namespace ERManagementSystem.ViewModels
         [RelayCommand]
         public void LoadData()
         {
-            EligibleVisits.Clear();
+            SelectedVisit = null;
             TransferLogs.Clear();
             StatusMessage = string.Empty;
             CanRetry = false;
 
+            var freshList = new ObservableCollection<VisitSummary>();
+
             const string sql = @"
-                SELECT v.Visit_ID, v.Chief_Complaint, v.Status,
-                       p.First_Name, p.Last_Name, p.Transferred
-                FROM dbo.ER_Visit v
-                INNER JOIN dbo.Patient p ON p.Patient_ID = v.Patient_ID
-                WHERE v.Status = 'IN_EXAMINATION'
-                ORDER BY v.Arrival_date_time ASC";
+        SELECT v.Visit_ID, v.Chief_Complaint, v.Status,
+               p.First_Name, p.Last_Name, p.Transferred
+        FROM dbo.ER_Visit v
+        INNER JOIN dbo.Patient p ON p.Patient_ID = v.Patient_ID
+        WHERE v.Status = 'IN_EXAMINATION'
+        ORDER BY v.Arrival_date_time ASC";
 
             using var reader = _sqlHelper.ExecuteReader(sql);
             while (reader.Read())
             {
-                EligibleVisits.Add(new VisitSummary
+                freshList.Add(new VisitSummary
                 {
                     Visit_ID = reader.GetInt32(0),
                     Chief_Complaint = reader.GetString(1),
@@ -108,6 +119,8 @@ namespace ERManagementSystem.ViewModels
                     Transferred = reader.GetBoolean(5)
                 });
             }
+
+            EligibleVisits = freshList;
         }
 
         // SendPatientData(): void  (Tasks 6.7, 6.9, 6.10)
@@ -191,6 +204,33 @@ namespace ERManagementSystem.ViewModels
             finally
             {
                 LoadLogs();
+            }
+        }
+
+        [RelayCommand]
+        public async void CloseVisit()
+        {
+            if (SelectedVisit == null)
+            {
+                await ShowDialog("Validation Error", "Please select a visit before closing.");
+                return;
+            }
+
+            var visitId = SelectedVisit.Visit_ID;
+            var patientName = SelectedVisit.PatientName;
+
+            try
+            {
+                _stateManagementService.CloseVisit(visitId);
+
+                LoadData();
+
+                await ShowDialog("Visit Closed",
+                    $"Visit {visitId} for {patientName} has been closed successfully.");
+            }
+            catch (Exception ex)
+            {
+                await ShowDialog("Close Failed", $"Could not close visit: {ex.Message}");
             }
         }
 
