@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using ERManagementSystem.Services;
 using ERManagementSystem.ViewModels;
 using ERManagementSystem.Views;
@@ -26,13 +26,15 @@ namespace ERManagementSystem.ViewModels
         [RelayCommand]
         private void ShowQueue()
         {
-            _navigationService.Navigate(typeof(QueueView));
+            var vm = App.Services.GetRequiredService<QueueViewModel>();
+            _navigationService.Navigate(typeof(QueueView), vm);
         }
 
         [RelayCommand]
         private void ShowTriage()
         {
-            _navigationService.Navigate(typeof(TriageView));
+            var vm = App.Services.GetRequiredService<TriageViewModel>();
+            _navigationService.Navigate(typeof(TriageView), vm);
         }
 
         [RelayCommand]
