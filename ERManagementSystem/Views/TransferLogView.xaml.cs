@@ -1,8 +1,6 @@
 using ERManagementSystem.Repositories;
 using ERManagementSystem.Services;
 using ERManagementSystem.ViewModels;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
@@ -34,15 +32,17 @@ namespace ERManagementSystem.Views
                 var dbConnection = new DataAccess.DatabaseConnection();
                 var sqlHelper = new Helpers.SqlHelper(dbConnection);
                 var transferDir = Path.Combine(AppContext.BaseDirectory, "transfers");
-
+                var transferLogRepository = new TransferLogRepository(sqlHelper);
                 var erVisitRepo = new ERVisitRepository(sqlHelper);
                 var stateSvc = new StateManagementService(erVisitRepo);
-
                 var transferService = new TransferService(sqlHelper, transferDir, stateSvc);
-                ViewModel = new TransferLogViewModel(transferService, sqlHelper);
+                ViewModel = new TransferLogViewModel(transferService, sqlHelper, stateSvc, transferLogRepository);
             }
 
-            ViewModel.XamlRoot = this.XamlRoot;
+            this.Loaded += (s, args) =>
+            {
+                ViewModel.XamlRoot = this.XamlRoot;
+            };
             ViewModel.LoadData();
         }
     }

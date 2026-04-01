@@ -6,6 +6,7 @@ using ERManagementSystem.Repositories;
 using ERManagementSystem.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.UI.Xaml.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -155,12 +156,16 @@ namespace ERManagementSystem.ViewModels
                 _transferService.TransitionVisitToTransferred(SelectedVisit.Visit_ID);
                 _transferService.MarkPatientAsTransferred(SelectedVisit.Visit_ID);
 
+                SelectedVisit.Status = "TRANSFERRED";
+                SelectedVisit.Transferred = true;
+
                 StatusMessage = "SUCCESS";
                 CanRetry = false;
 
-                // Task 6.10: show WinUI 3 ContentDialog success message
+                // Task 6.10: show WinUI 3 ContentDialog success message + refresh data
                 await ShowDialog("Transfer Successful",
                     $"Patient data for Visit {SelectedVisit.Visit_ID} has been successfully sent to Patient Management.");
+                // LoadData();
             }
             catch (Exception ex)
             {
@@ -190,10 +195,17 @@ namespace ERManagementSystem.ViewModels
                 {
                     _transferService.TransitionVisitToTransferred(SelectedVisit.Visit_ID);
                     _transferService.MarkPatientAsTransferred(SelectedVisit.Visit_ID);
+
+                    SelectedVisit.Status = "TRANSFERRED";
+                    SelectedVisit.Transferred = true;
+
                     StatusMessage = "Retry SUCCESS";
                     CanRetry = false;
+
                     await ShowDialog("Retry Successful",
                         $"Patient data for Visit {SelectedVisit.Visit_ID} was successfully sent on retry.");
+
+                    
                 }
             }
             catch (Exception ex)
@@ -215,6 +227,12 @@ namespace ERManagementSystem.ViewModels
                 await ShowDialog("Validation Error", "Please select a visit before closing.");
                 return;
             }
+            if (SelectedVisit.Status != "IN_EXAMINATION")
+            {
+                await ShowDialog("Validation Error",
+                    "Closing is only allowed for visits with status IN_EXAMINATION.");
+                return;
+            }
 
             var visitId = SelectedVisit.Visit_ID;
             var patientName = SelectedVisit.PatientName;
@@ -223,7 +241,7 @@ namespace ERManagementSystem.ViewModels
             {
                 _stateManagementService.CloseVisit(visitId);
 
-                LoadData();
+                SelectedVisit.Status = "CLOSED"; 
 
                 await ShowDialog("Visit Closed",
                     $"Visit {visitId} for {patientName} has been closed successfully.");
@@ -251,12 +269,22 @@ namespace ERManagementSystem.ViewModels
     }
 
     // VisitSummary — lightweight helper for the eligible visits DataGrid
-    public class VisitSummary
+    public partial class VisitSummary : ObservableObject
     {
-        public int Visit_ID { get; set; }
-        public string PatientName { get; set; } = string.Empty;
-        public string Chief_Complaint { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public bool Transferred { get; set; }
+        [ObservableProperty]
+        private int visit_ID;
+
+        [ObservableProperty]
+        private string patientName = string.Empty;
+
+        [ObservableProperty]
+        private string chief_Complaint = string.Empty;
+
+        [ObservableProperty]
+        private string status = string.Empty;
+
+        [ObservableProperty]
+        private bool transferred;
     }
+
 }
