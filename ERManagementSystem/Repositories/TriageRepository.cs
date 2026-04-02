@@ -68,7 +68,7 @@ namespace ERManagementSystem.Repositories
 
             using var reader = _sqlHelper.ExecuteReader(sql, parameters);
 
-            if (reader.Read())
+            if (reader.Read())  
             {
                 return new Triage
                 {

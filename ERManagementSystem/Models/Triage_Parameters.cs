@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ERManagementSystem.Models
 {
-    public class Triage_Parameters : IValidatableObject
+    public class Triage_Parameters
     {
         public int Triage_ID { get; set; }
 
@@ -60,31 +60,6 @@ namespace ERManagementSystem.Models
 
             if (Pain_Level < 1 || Pain_Level > 3)
                 throw new ArgumentOutOfRangeException(nameof(Pain_Level), "Pain_Level must be between 1 (normal) and 3 (most critical).");
-        }
-
-        /// <summary>
-        /// IValidatableObject implementation for DataAnnotations-based validation.
-        /// </summary>
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            var results = new List<ValidationResult>();
-
-            if (Consciousness < 1 || Consciousness > 3)
-                results.Add(new ValidationResult("Consciousness must be between 1 and 3.", new[] { nameof(Consciousness) }));
-
-            if (Breathing < 1 || Breathing > 3)
-                results.Add(new ValidationResult("Breathing must be between 1 and 3.", new[] { nameof(Breathing) }));
-
-            if (Bleeding < 1 || Bleeding > 3)
-                results.Add(new ValidationResult("Bleeding must be between 1 and 3.", new[] { nameof(Bleeding) }));
-
-            if (Injury_Type < 1 || Injury_Type > 3)
-                results.Add(new ValidationResult("Injury_Type must be between 1 and 3.", new[] { nameof(Injury_Type) }));
-
-            if (Pain_Level < 1 || Pain_Level > 3)
-                results.Add(new ValidationResult("Pain_Level must be between 1 and 3.", new[] { nameof(Pain_Level) }));
-
-            return results;
         }
     }
 }
