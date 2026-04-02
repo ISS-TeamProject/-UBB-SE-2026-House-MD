@@ -16,37 +16,38 @@ namespace ERManagementSystem.Views
 
         // ─────────────────────────────────────────────
         // Public method — call this to load visit data
+        // Pass triage as null if not yet triaged
         // ─────────────────────────────────────────────
 
-        public void LoadVisit(VisitDetailsData? data)
+        public void LoadVisit(Patient? patient, ER_Visit? visit, Triage? triage = null)
         {
-            if (data == null)
+            if (patient == null || visit == null)
             {
                 ClearPanel();
                 return;
             }
 
             // Patient
-            FullNameText.Text = data.FullName;
-            PatientIdText.Text = data.Patient_ID;
-            DateOfBirthText.Text = data.Date_of_Birth.ToString("dd/MM/yyyy");
-            GenderText.Text = data.Gender;
-            PhoneText.Text = data.Phone;
-            EmergencyContactText.Text = data.Emergency_Contact;
+            FullNameText.Text = $"{patient.First_Name} {patient.Last_Name}";
+            PatientIdText.Text = patient.Patient_ID;
+            DateOfBirthText.Text = patient.Date_of_Birth.ToString("dd/MM/yyyy");
+            GenderText.Text = patient.Gender;
+            PhoneText.Text = patient.Phone;
+            EmergencyContactText.Text = patient.Emergency_Contact;
 
             // Visit
-            VisitIdText.Text = data.Visit_ID.ToString();
-            ArrivalText.Text = data.Arrival_date_time.ToString("dd/MM/yyyy HH:mm");
-            ChiefComplaintText.Text = data.Chief_Complaint;
+            VisitIdText.Text = visit.Visit_ID.ToString();
+            ArrivalText.Text = visit.Arrival_date_time.ToString("dd/MM/yyyy HH:mm");
+            ChiefComplaintText.Text = visit.Chief_Complaint;
 
             // Triage — show card only if triage exists
-            if (data.HasTriage)
+            if (triage != null)
             {
                 TriageCard.Visibility = Visibility.Visible;
-                TriageLevelText.Text = data.TriageLevelDisplay;
-                SpecializationText.Text = data.SpecializationDisplay;
-                NurseIdText.Text = data.Nurse_ID?.ToString() ?? "—";
-                TriageTimeText.Text = data.Triage_Time?.ToString("dd/MM/yyyy HH:mm") ?? "—";
+                TriageLevelText.Text = $"Level {triage.Triage_Level}";
+                SpecializationText.Text = triage.Specialization;
+                NurseIdText.Text = triage.Nurse_ID.ToString();
+                TriageTimeText.Text = triage.Triage_Time.ToString("dd/MM/yyyy HH:mm");
             }
             else
             {
@@ -54,7 +55,7 @@ namespace ERManagementSystem.Views
             }
 
             // Timeline
-            TimelineItems.ItemsSource = BuildTimeline(data.Status);
+            TimelineItems.ItemsSource = BuildTimeline(visit.Status);
         }
 
         // ─────────────────────────────────────────────

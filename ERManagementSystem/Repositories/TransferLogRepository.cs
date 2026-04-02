@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using ERManagementSystem.Helpers;
 using ERManagementSystem.Models;
+using ERManagementSystem.Helpers;
 
 namespace ERManagementSystem.Repositories
 {
@@ -48,6 +49,7 @@ namespace ERManagementSystem.Repositories
             using var reader = _sqlHelper.ExecuteReader(sql, parameters);
             if (reader.Read())
                 log.Transfer_ID = reader.GetInt32(0);
+            Logger.Info($"[TransferLogRepository] Added log entry {log.Transfer_ID} for Visit {log.Visit_ID}, Status={log.Status}");
         }
 
         // GetByVisitId(id: int): List 
@@ -103,6 +105,7 @@ namespace ERManagementSystem.Repositories
 
             _sqlHelper.ExecuteNonQuery(sql,
                 new SqlParameter("@TransferId", log.Transfer_ID));
+            Logger.Info($"[TransferLogRepository] Deleted log entry {log.Transfer_ID}");
         }
 
         // UpdateStatus — internal helper used by retry mechanism
@@ -116,6 +119,7 @@ namespace ERManagementSystem.Repositories
             _sqlHelper.ExecuteNonQuery(sql,
                 new SqlParameter("@Status", newStatus),
                 new SqlParameter("@TransferId", transferId));
+            Logger.Info($"[TransferLogRepository] Updated log {transferId} to status '{newStatus}'");
         }
 
         // Manual SqlDataReader → Transfer_Log mapping
