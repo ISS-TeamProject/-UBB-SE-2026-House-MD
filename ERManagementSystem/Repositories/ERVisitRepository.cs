@@ -207,58 +207,7 @@ namespace ERManagementSystem.Repositories
             return list;
         }
 
-        public VisitDetailsData? GetVisitDetails(int visitId)
-        {
-            const string query = @"
-                SELECT
-                    p.Patient_ID, p.First_Name, p.Last_Name, p.Date_of_Birth,
-                    p.Gender, p.Phone, p.Emergency_Contact,
-                    v.Visit_ID, v.Arrival_date_time, v.Chief_Complaint, v.Status,
-                    t.Triage_Level, t.Specialization, t.Nurse_ID, t.Triage_Time
-                FROM       dbo.ER_Visit  v
-                INNER JOIN dbo.Patient   p ON v.Patient_ID = p.Patient_ID
-                LEFT  JOIN dbo.Triage    t ON v.Visit_ID   = t.Visit_ID
-                WHERE v.Visit_ID = @Visit_ID";
-
-            var parameters = new[] { new SqlParameter("@Visit_ID", visitId) };
-
-            try
-            {
-                using var reader = _sqlHelper.ExecuteReader(query, parameters);
-                if (!reader.Read())
-                {
-                    Logger.Warning($"GetVisitDetails: No data found for Visit {visitId}.");
-                    return null;
-                }
-
-                var data = new VisitDetailsData
-                {
-                    Patient_ID = reader["Patient_ID"].ToString()!,
-                    First_Name = reader["First_Name"].ToString()!,
-                    Last_Name = reader["Last_Name"].ToString()!,
-                    Date_of_Birth = Convert.ToDateTime(reader["Date_of_Birth"]),
-                    Gender = reader["Gender"].ToString()!,
-                    Phone = reader["Phone"].ToString()!,
-                    Emergency_Contact = reader["Emergency_Contact"].ToString()!,
-                    Visit_ID = Convert.ToInt32(reader["Visit_ID"]),
-                    Arrival_date_time = Convert.ToDateTime(reader["Arrival_date_time"]),
-                    Chief_Complaint = reader["Chief_Complaint"].ToString()!,
-                    Status = reader["Status"].ToString()!,
-                    Triage_Level = reader["Triage_Level"] == DBNull.Value ? null : Convert.ToInt32(reader["Triage_Level"]),
-                    Specialization = reader["Specialization"] == DBNull.Value ? null : reader["Specialization"].ToString(),
-                    Nurse_ID = reader["Nurse_ID"] == DBNull.Value ? null : Convert.ToInt32(reader["Nurse_ID"]),
-                    Triage_Time = reader["Triage_Time"] == DBNull.Value ? null : Convert.ToDateTime(reader["Triage_Time"])
-                };
-
-                Logger.Info($"GetVisitDetails loaded Visit {visitId} for Patient {data.Patient_ID}.");
-                return data;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"DB error in ERVisitRepository.GetVisitDetails for Visit {visitId}.", ex);
-                throw;
-            }
-        }
+        
 
         private static ER_Visit MapReaderToERVisit(SqlDataReader reader)
         {
