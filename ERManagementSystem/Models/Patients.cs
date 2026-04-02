@@ -83,17 +83,5 @@ namespace ERManagementSystem.Models
 
 		
 
-		public void ValidateOrThrow()
-		{
-			if (!Validate(out var errors))
-				throw new InvalidOperationException(
-					"Patient data is invalid:\n" + string.Join("\n", errors));
-		}
-
-		
-		public string FullName => $"{Last_Name}, {First_Name}";
-
-		public override string ToString() =>
-			$"[{Patient_ID}] {FullName} – DOB: {Date_of_Birth:yyyy-MM-dd}, Gender: {Gender}";
 	}
 }
