@@ -119,11 +119,11 @@ namespace ERManagementSystem.Services
         ///   (injury_type x 2) +
         ///   (pain_level x 1)
         ///
-        /// Suggested score-to-level mapping:
-        /// - 0 to 6   => Level 5
-        /// - 7 to 12  => Level 4
-        /// - 13 to 18 => Level 3
-        /// - 19+      => Level 2
+        /// 
+        ///  <=11   => Level 5
+        /// - 12-15 => Level 4
+        /// - 16-19 => Level 3
+        /// - >=20      => Level 2
         ///
         /// Adjust these thresholds if your project documentation uses different cutoffs.
         /// </summary>
@@ -144,13 +144,13 @@ namespace ERManagementSystem.Services
                 (parameters.Injury_Type * 2) +
                 (parameters.Pain_Level * 1);
 
-            if (severityScore >= 19)
+            if (severityScore >= 20)
                 return 2;
 
-            if (severityScore >= 13)
+            if (severityScore >= 16)
                 return 3;
 
-            if (severityScore >= 7)
+            if (severityScore >= 12)
                 return 4;
 
             return 5;
