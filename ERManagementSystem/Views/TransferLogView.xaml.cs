@@ -34,7 +34,9 @@ namespace ERManagementSystem.Views
                 var transferDir = Path.Combine(AppContext.BaseDirectory, "transfers");
                 var transferLogRepository = new TransferLogRepository(sqlHelper);
                 var erVisitRepo = new ERVisitRepository(sqlHelper);
-                var stateSvc = new StateManagementService(erVisitRepo);
+                var roomRepo = new RoomRepository(sqlHelper);
+                // Task 5.13: pass RoomRepository so auto-clean fires on TRANSFERRED/CLOSED
+                var stateSvc = new StateManagementService(erVisitRepo, roomRepo);
                 var transferService = new TransferService(sqlHelper, transferDir, stateSvc);
                 ViewModel = new TransferLogViewModel(transferService, sqlHelper, stateSvc, transferLogRepository);
             }

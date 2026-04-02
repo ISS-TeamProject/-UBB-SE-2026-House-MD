@@ -43,9 +43,11 @@ namespace ERManagementSystem.Views
                 var examRepository = new ExaminationRepository(sqlHelper);
                 var erVisitRepository = new ERVisitRepository(sqlHelper);
                 var triageRepository = new TriageRepository(sqlHelper);
+                var roomRepository = new RoomRepository(sqlHelper);
 
                 // Services
-                var stateManagementService = new StateManagementService(erVisitRepository);
+                // Task 5.13: use room-aware StateManagementService so auto-clean fires
+                var stateManagementService = new StateManagementService(erVisitRepository, roomRepository);
                 var mockStaffService = new MockStaffService();
                 var examinationService = new ExaminationService(
                     examRepository,
@@ -54,7 +56,11 @@ namespace ERManagementSystem.Views
                     mockStaffService,
                     stateManagementService);
 
-                ViewModel = new ExaminationViewModel(examinationService, mockStaffService, erVisitRepository, examRepository, triageRepository);
+                // Task 5.13: pass roomRepository so SaveExamination stores the correct Room_ID
+                ViewModel = new ExaminationViewModel(
+                    examinationService, mockStaffService,
+                    erVisitRepository, examRepository, triageRepository,
+                    roomRepository);
             }
 
             // Re-evaluate all x:Bind bindings now that ViewModel is set.

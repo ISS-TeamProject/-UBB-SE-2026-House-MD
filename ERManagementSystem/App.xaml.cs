@@ -14,8 +14,6 @@ namespace ERManagementSystem
     public partial class App : Application
     {
         public static ServiceProvider Services { get; private set; } = null!;
-
-        // Expose the main window so ViewModels can access XamlRoot for dialogs
         public static Window? MainAppWindow { get; private set; }
 
         public App()
@@ -38,17 +36,28 @@ namespace ERManagementSystem
             services.AddSingleton<INavigationService>(sp =>
                 sp.GetRequiredService<NavigationService>());
 
-            // ── Repositories (Miruna's: Patient & Visit) ─────────────────────
+            // ── Repositories ─────────────────────────────────────────────────
             services.AddTransient<PatientRepository>();
             services.AddTransient<ERVisitRepository>();
-
-            // ── Repositories (Triage) ─────────────────────────────────────────
             services.AddTransient<TriageRepository>();
             services.AddTransient<TriageParametersRepository>();
+            services.AddTransient<ExaminationRepository>();
+            services.AddTransient<TransferLogRepository>();
+            services.AddTransient<RoomRepository>();              // Alex
 
-            // ── Services (Miruna's: Registration & State) ────────────────────
+            // ── Services ─────────────────────────────────────────────────────
             services.AddTransient<RegistrationService>();
-            services.AddTransient<StateManagementService>();
+            // Task 5.13: use factory so StateManagementService always gets RoomRepository
+            // enabling auto-set room to cleaning when visit is TRANSFERRED or CLOSED.
+            services.AddTransient<StateManagementService>(sp =>
+                new StateManagementService(
+                    sp.GetRequiredService<ERVisitRepository>(),
+                    sp.GetRequiredService<RoomRepository>()));
+            services.AddSingleton<NurseService>();
+            services.AddTransient<TriageService>();
+            services.AddTransient<QueueService>();
+            services.AddTransient<RoomAssignmentService>();       // Alex
+            services.AddTransient<RoomManagementService>();       // Alex
 
             // ── Services (Triage & Queue) ────────────────────────────────────
             services.AddSingleton<NurseService>();
@@ -60,11 +69,15 @@ namespace ERManagementSystem
             services.AddTransient<PatientRegistrationViewModel>();
             services.AddTransient<TriageViewModel>();
             services.AddTransient<QueueViewModel>();
+            services.AddTransient<RoomAssignmentViewModel>();     // Alex
+            services.AddTransient<RoomManagementViewModel>();     // Alex
 
             // ── Views ────────────────────────────────────────────────────────
             services.AddTransient<PatientRegistrationView>();
             services.AddTransient<TriageView>();
             services.AddTransient<QueueView>();
+            services.AddTransient<RoomAssignmentView>();          // Alex
+            services.AddTransient<RoomManagementView>();          // Alex
 
             Services = services.BuildServiceProvider();
         }
@@ -78,7 +91,6 @@ namespace ERManagementSystem
         private void ConfigureGlobalExceptionHandling()
         {
             this.UnhandledException += App_UnhandledException;
-
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
         }
