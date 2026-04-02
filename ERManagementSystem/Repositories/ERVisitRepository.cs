@@ -15,8 +15,6 @@ namespace ERManagementSystem.Repositories
             _sqlHelper = sqlHelper;
         }
 
-     
-
         public void Add(ER_Visit visit)
         {
             const string query = @"
@@ -34,13 +32,21 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Status",            ER_Visit.VisitStatus.REGISTERED)
             };
 
-           
-            using var reader = _sqlHelper.ExecuteReader(query, parameters);
-            if (reader.Read())
-                visit.Visit_ID = Convert.ToInt32(reader["Visit_ID"]);
+            try
+            {
+                using var reader = _sqlHelper.ExecuteReader(query, parameters);
+                if (reader.Read())
+                {
+                    visit.Visit_ID = Convert.ToInt32(reader["Visit_ID"]);
+                    Logger.Info($"ER Visit created with ID {visit.Visit_ID} for Patient {visit.Patient_ID}.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"DB error in ERVisitRepository.Add for Patient {visit.Patient_ID}.", ex);
+                throw;
+            }
         }
-
-    
 
         public List<ER_Visit> GetActiveVisits()
         {
@@ -51,9 +57,19 @@ namespace ERManagementSystem.Repositories
 
             var visits = new List<ER_Visit>();
 
-            using var reader = _sqlHelper.ExecuteReader(query);
-            while (reader.Read())
-                visits.Add(MapReaderToERVisit(reader));
+            try
+            {
+                using var reader = _sqlHelper.ExecuteReader(query);
+                while (reader.Read())
+                    visits.Add(MapReaderToERVisit(reader));
+
+                Logger.Info($"GetActiveVisits returned {visits.Count} visit(s).");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("DB error in ERVisitRepository.GetActiveVisits.", ex);
+                throw;
+            }
 
             return visits;
         }
@@ -71,10 +87,17 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Visit_ID", visitId)
             };
 
-            _sqlHelper.ExecuteNonQuery(query, parameters);
+            try
+            {
+                _sqlHelper.ExecuteNonQuery(query, parameters);
+                Logger.Info($"Visit {visitId} status updated to '{newStatus}' in DB.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"DB error in ERVisitRepository.UpdateStatus for Visit {visitId}.", ex);
+                throw;
+            }
         }
-
-        
 
         public ER_Visit? GetByVisitId(int visitId)
         {
@@ -88,14 +111,21 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Visit_ID", visitId)
             };
 
-            using var reader = _sqlHelper.ExecuteReader(query, parameters);
-            if (reader.Read())
-                return MapReaderToERVisit(reader);
+            try
+            {
+                using var reader = _sqlHelper.ExecuteReader(query, parameters);
+                if (reader.Read())
+                    return MapReaderToERVisit(reader);
 
-            return null;
+                Logger.Warning($"GetByVisitId: Visit {visitId} not found.");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"DB error in ERVisitRepository.GetByVisitId for Visit {visitId}.", ex);
+                throw;
+            }
         }
-
-        
 
         public List<ER_Visit> GetByStatus(string status)
         {
@@ -111,11 +141,70 @@ namespace ERManagementSystem.Repositories
 
             var visits = new List<ER_Visit>();
 
-            using var reader = _sqlHelper.ExecuteReader(query, parameters);
-            while (reader.Read())
-                visits.Add(MapReaderToERVisit(reader));
+            try
+            {
+                using var reader = _sqlHelper.ExecuteReader(query, parameters);
+                while (reader.Read())
+                    visits.Add(MapReaderToERVisit(reader));
+
+                Logger.Info($"GetByStatus('{status}') returned {visits.Count} visit(s).");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"DB error in ERVisitRepository.GetByStatus('{status}').", ex);
+                throw;
+            }
 
             return visits;
+        }
+
+        public List<(ER_Visit visit, Triage triage)> GetActiveVisitsWithTriage()
+        {
+            string sql = @"
+                SELECT v.Visit_ID, v.Patient_ID, v.Arrival_date_time, v.Chief_Complaint, v.Status,
+                       t.Triage_ID, t.Visit_ID AS Triage_Visit_ID, t.Triage_Level, t.Specialization, t.Nurse_ID, t.Triage_Time
+                FROM ER_Visit v
+                INNER JOIN Triage t ON v.Visit_ID = t.Visit_ID
+                WHERE v.Status IN ('WAITING_FOR_ROOM')";
+
+            var list = new List<(ER_Visit, Triage)>();
+
+            try
+            {
+                using var reader = _sqlHelper.ExecuteReader(sql);
+                while (reader.Read())
+                {
+                    var visit = new ER_Visit
+                    {
+                        Visit_ID = reader.GetInt32(reader.GetOrdinal("Visit_ID")),
+                        Patient_ID = reader.GetString(reader.GetOrdinal("Patient_ID")),
+                        Arrival_date_time = reader.GetDateTime(reader.GetOrdinal("Arrival_date_time")),
+                        Chief_Complaint = reader.GetString(reader.GetOrdinal("Chief_Complaint")),
+                        Status = reader.GetString(reader.GetOrdinal("Status"))
+                    };
+
+                    var triage = new Triage
+                    {
+                        Triage_ID = reader.GetInt32(reader.GetOrdinal("Triage_ID")),
+                        Visit_ID = reader.GetInt32(reader.GetOrdinal("Triage_Visit_ID")),
+                        Triage_Level = reader.GetInt32(reader.GetOrdinal("Triage_Level")),
+                        Specialization = reader.GetString(reader.GetOrdinal("Specialization")),
+                        Nurse_ID = reader.GetInt32(reader.GetOrdinal("Nurse_ID")),
+                        Triage_Time = reader.GetDateTime(reader.GetOrdinal("Triage_Time"))
+                    };
+
+                    list.Add((visit, triage));
+                }
+
+                Logger.Info($"GetActiveVisitsWithTriage returned {list.Count} visit(s).");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("DB error in ERVisitRepository.GetActiveVisitsWithTriage.", ex);
+                throw;
+            }
+
+            return list;
         }
 
         

@@ -1,4 +1,4 @@
-﻿-- ============================================
+-- ============================================
 -- ER Management System - seed.sql
 -- Sample data for local SQL Server
 -- ============================================
@@ -7,6 +7,7 @@ USE ERManagementSystem;
 GO
 
 -- cleanup in FK-safe order
+UPDATE dbo.ER_Room SET Current_Visit_ID = NULL;
 DELETE FROM dbo.Transfer_Log;
 DELETE FROM dbo.Examination;
 DELETE FROM dbo.Triage_Parameters;
@@ -46,16 +47,16 @@ GO
 -- 2. ER_Room (8 rows)
 -- ============================================
 INSERT INTO dbo.ER_Room
-    (Room_Type, Availability_Status)
+    (Room_Type, Availability_Status, Current_Visit_ID)
 VALUES
-    ('Operating Room (OR)', 'available'),
-    ('Operating Room (OR)', 'available'),
-    ('Trauma/Resuscitation Bay', 'available'),
-    ('Trauma/Resuscitation Bay', 'available'),
-    ('Respiratory/Monitored Room', 'occupied'),
-    ('Neurology/Quiet Observation Room', 'available'),
-    ('Orthopedic/Procedure Room', 'available'),
-    ('General Examination Room', 'occupied');
+    ('Operating Room (OR)', 'available', NULL),
+    ('Operating Room (OR)', 'available', NULL),
+    ('Trauma/Resuscitation Bay', 'occupied', NULL),       -- Will link to Visit 12
+    ('Trauma/Resuscitation Bay', 'available', NULL),
+    ('Respiratory/Monitored Room', 'occupied', NULL),      -- Will link to Visit 4
+    ('Neurology/Quiet Observation Room', 'available', NULL),
+    ('Orthopedic/Procedure Room', 'occupied', NULL),      -- Will link to Visit 15
+    ('General Examination Room', 'occupied', NULL);        -- Will link to Visit 6
 GO
 
 -- ============================================
@@ -67,18 +68,18 @@ VALUES
     ('5010112123456', '2026-03-26 08:15:00', 'Severe abdominal pain',      'REGISTERED'),
     ('6020205123467', '2026-03-26 08:40:00', 'Shortness of breath',        'TRIAGED'),
     ('1980315123478', '2026-03-26 09:05:00', 'Head trauma after fall',     'WAITING_FOR_ROOM'),
-    ('2990412123489', '2026-03-26 09:20:00', 'Chest pain',                 'IN_EXAMINATION'),
-    ('1970525123490', '2026-03-26 09:45:00', 'Broken arm',                 'WAITING_FOR_DOCTOR'),
-    ('6030618123501', '2026-03-26 10:10:00', 'High fever and cough',       'IN_EXAMINATION'),
+    ('2990412123489', '2026-03-26 09:20:00', 'Chest pain',                 'IN_ROOM'),
+    ('1970525123490', '2026-03-26 09:45:00', 'Broken arm',                 'WAITING_FOR_ROOM'),
+    ('6030618123501', '2026-03-26 10:10:00', 'High fever and cough',       'IN_ROOM'),
     ('1960721123512', '2026-03-26 10:35:00', 'Dizziness',                  'TRANSFERRED'),
     ('2950823123523', '2026-03-26 11:00:00', 'Knee injury',                'CLOSED'),
     ('6040915123534', '2026-03-26 11:25:00', 'Loss of consciousness',      'TRIAGED'),
     ('2931017123545', '2026-03-26 11:50:00', 'Migraine',                   'REGISTERED'),
-    ('5010112123456', '2026-03-27 07:30:00', 'Vomiting and dehydration',   'WAITING_FOR_DOCTOR'),
+    ('5010112123456', '2026-03-27 07:30:00', 'Vomiting and dehydration',   'WAITING_FOR_ROOM'),
     ('6020205123467', '2026-03-27 07:50:00', 'Allergic reaction',          'IN_EXAMINATION'),
     ('1980315123478', '2026-03-27 08:10:00', 'Back pain',                  'REGISTERED'),
     ('2990412123489', '2026-03-27 08:30:00', 'Seizure episode',            'WAITING_FOR_ROOM'),
-    ('2950823123523', '2026-03-27 08:45:00', 'Ankle sprain',               'TRIAGED');
+    ('2950823123523', '2026-03-27 08:45:00', 'Ankle sprain',               'IN_ROOM');
 GO
 
 -- ============================================
@@ -107,7 +108,7 @@ VALUES
     (7,  4, 'Neurology',          102, '2026-03-26 10:42:00'),
 
     -- Visit 8: triaged then closed allowed; non-critical general case
-    (8,  5, NULL,                 103, '2026-03-26 11:08:00'),
+    (8,  5, 'Orthopedics',        103, '2026-03-26 11:08:00'),
 
     -- Visit 9: consciousness=3 => critical => level 1, specialization Neurology
     (9,  1, 'Neurology',          104, '2026-03-26 11:33:00'),
@@ -166,9 +167,8 @@ GO
 INSERT INTO dbo.Examination
     (Visit_ID, Doctor_ID, Exam_Time, Room_ID, Notes)
 VALUES
-    (4,  201, '2026-03-26 09:35:00', 8, 'Chest pain under observation. ECG and vitals monitoring recommended.'),
-    (6,  202, '2026-03-26 10:25:00', 5, 'Fever, cough, and mild respiratory distress. Pulmonary evaluation performed.'),
-    (12, 203, '2026-03-27 08:05:00', 3, 'Allergic reaction treated with antihistamines and monitored for airway stability.');
+    (8,  102, '2026-03-26 11:30:00', 4, 'Examined knee, minor contusion. Prescribed rest and ibuprofen.'),
+    (12, 104, '2026-03-27 08:05:00', 3, 'Allergic reaction treated with antihistamines and monitored for airway stability.');
 GO
 
 -- ============================================
@@ -189,6 +189,12 @@ VALUES
     (12, '2026-03-27 08:20:00', 'Patient Management', 'RETRYING');
 GO
 
-
-
-
+-- ============================================
+-- 8. Post-Seed Room Linkage
+-- (Must be done after ER_Visit exists to satisfy FK_ER_Room_Current_Visit)
+-- ============================================
+UPDATE dbo.ER_Room SET Current_Visit_ID = 12 WHERE Room_ID = 3;
+UPDATE dbo.ER_Room SET Current_Visit_ID = 4  WHERE Room_ID = 5;
+UPDATE dbo.ER_Room SET Current_Visit_ID = 15 WHERE Room_ID = 7;
+UPDATE dbo.ER_Room SET Current_Visit_ID = 6  WHERE Room_ID = 8;
+GO

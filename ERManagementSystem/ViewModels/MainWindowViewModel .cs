@@ -15,6 +15,7 @@ namespace ERManagementSystem.ViewModels
             _navigationService = navigationService;
         }
 
+
         [RelayCommand]
         private void ShowPatientRegistration()
         {
@@ -25,20 +26,21 @@ namespace ERManagementSystem.ViewModels
         [RelayCommand]
         private void ShowQueue()
         {
-            _navigationService.Navigate(typeof(QueueView));
+            var vm = App.Services.GetRequiredService<QueueViewModel>();
+            _navigationService.Navigate(typeof(QueueView), vm);
         }
 
         [RelayCommand]
         private void ShowTriage()
         {
-            _navigationService.Navigate(typeof(TriageView));
+            var vm = App.Services.GetRequiredService<TriageViewModel>();
+            _navigationService.Navigate(typeof(TriageView), vm);
         }
 
         [RelayCommand]
         private void ShowRoomAssignment()
         {
-            var vm = App.Services.GetRequiredService<RoomAssignmentViewModel>();
-            _navigationService.Navigate(typeof(RoomAssignmentView), vm);
+            _navigationService.Navigate(typeof(RoomAssignmentView));
         }
 
         [RelayCommand]
@@ -56,8 +58,7 @@ namespace ERManagementSystem.ViewModels
         [RelayCommand]
         private void ShowRoomManagement()
         {
-            var vm = App.Services.GetRequiredService<RoomManagementViewModel>();
-            _navigationService.Navigate(typeof(RoomManagementView), vm);
+            _navigationService.Navigate(typeof(RoomManagementView));
         }
     }
 }

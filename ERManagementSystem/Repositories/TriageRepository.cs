@@ -14,13 +14,12 @@ namespace ERManagementSystem.Repositories
             _sqlHelper = sqlHelper;
         }
 
-        /// <summary>
-        /// Inserts a new Triage record into the database.
-        /// </summary>
-        public void Add(Triage triage)
+        public int Add(Triage triage)
         {
-            string sql = @"INSERT INTO Triage (Visit_ID, Triage_Level, Specialization, Nurse_ID, Triage_Time)
-                           VALUES (@Visit_ID, @Triage_Level, @Specialization, @Nurse_ID, @Triage_Time)";
+            string sql = @"
+            INSERT INTO Triage (Visit_ID, Triage_Level, Specialization, Nurse_ID, Triage_Time)
+            OUTPUT INSERTED.Triage_ID
+            VALUES (@Visit_ID, @Triage_Level, @Specialization, @Nurse_ID, @Triage_Time)";
 
             var parameters = new SqlParameter[]
             {
@@ -31,7 +30,27 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Triage_Time", triage.Triage_Time)
             };
 
-            _sqlHelper.ExecuteNonQuery(sql, parameters);
+            Logger.Info($"[TriageRepository] Creating triage for visit {triage.Visit_ID}");
+
+            try
+            {
+                using var reader = _sqlHelper.ExecuteReader(sql, parameters);
+
+                if (reader.Read())
+                {
+                    int id = reader.GetInt32(reader.GetOrdinal("Triage_ID"));
+                    Logger.Info($"[TriageRepository] Created triage {id} for visit {triage.Visit_ID}");
+                    return id;
+                }
+
+                Logger.Warning($"[TriageRepository] Insert returned no ID for visit {triage.Visit_ID}");
+                throw new InvalidOperationException("Failed to insert Triage and retrieve ID.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"[TriageRepository] Error inserting triage for visit {triage.Visit_ID}", ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -63,6 +82,21 @@ namespace ERManagementSystem.Repositories
             }
 
             return null;
+        }
+
+        public void Delete(Triage triage)
+        {
+            if (triage == null || triage.Triage_ID <= 0)
+                throw new ArgumentException("Invalid Triage object.");
+
+            string sql = "DELETE FROM Triage WHERE Triage_ID = @Triage_ID";
+
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("@Triage_ID", triage.Triage_ID)
+            };
+
+            _sqlHelper.ExecuteNonQuery(sql, parameters);
         }
     }
 }

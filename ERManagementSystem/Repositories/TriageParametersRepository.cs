@@ -32,7 +32,18 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Pain_Level", parameters.Pain_Level)
             };
 
-            _sqlHelper.ExecuteNonQuery(sql, sqlParams);
+            Logger.Info($"[TriageParametersRepository] Adding parameters for triage {parameters.Triage_ID}");
+
+            try
+            {
+                _sqlHelper.ExecuteNonQuery(sql, sqlParams);
+                Logger.Info($"[TriageParametersRepository] Parameters saved for triage {parameters.Triage_ID}");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"[TriageParametersRepository] Failed to insert parameters for triage {parameters.Triage_ID}", ex);
+                throw;
+            }
         }
 
         /// <summary>
@@ -48,22 +59,50 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Triage_ID", triageId)
             };
 
-            using var reader = _sqlHelper.ExecuteReader(sql, parameters);
+            Logger.Info($"[TriageParametersRepository] Fetching parameters for triage {triageId}");
 
-            if (reader.Read())
+            try
             {
-                return new Triage_Parameters
-                {
-                    Triage_ID = reader.GetInt32(reader.GetOrdinal("Triage_ID")),
-                    Consciousness = reader.GetInt32(reader.GetOrdinal("Consciousness")),
-                    Breathing = reader.GetInt32(reader.GetOrdinal("Breathing")),
-                    Bleeding = reader.GetInt32(reader.GetOrdinal("Bleeding")),
-                    Injury_Type = reader.GetInt32(reader.GetOrdinal("Injury_Type")),
-                    Pain_Level = reader.GetInt32(reader.GetOrdinal("Pain_Level"))
-                };
-            }
+                using var reader = _sqlHelper.ExecuteReader(sql, parameters);
 
-            return null;
+                if (reader.Read())
+                {
+                    Logger.Info($"[TriageParametersRepository] Found parameters for triage {triageId}");
+
+                    return new Triage_Parameters
+                    {
+                        Triage_ID = reader.GetInt32(reader.GetOrdinal("Triage_ID")),
+                        Consciousness = reader.GetInt32(reader.GetOrdinal("Consciousness")),
+                        Breathing = reader.GetInt32(reader.GetOrdinal("Breathing")),
+                        Bleeding = reader.GetInt32(reader.GetOrdinal("Bleeding")),
+                        Injury_Type = reader.GetInt32(reader.GetOrdinal("Injury_Type")),
+                        Pain_Level = reader.GetInt32(reader.GetOrdinal("Pain_Level"))
+                    };
+                }
+
+                Logger.Warning($"[TriageParametersRepository] No parameters found for triage {triageId}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"[TriageParametersRepository] Error fetching parameters for triage {triageId}", ex);
+                throw;
+            }
+        }
+
+        public void Delete(Triage_Parameters parameters)
+        {
+            if (parameters == null || parameters.Triage_ID <= 0)
+                throw new ArgumentException("Invalid Triage_Parameters object.");
+
+            string sql = "DELETE FROM Triage_Parameters WHERE Triage_ID = @Triage_ID";
+
+            var sqlParams = new SqlParameter[]
+            {
+                new SqlParameter("@Triage_ID", parameters.Triage_ID)
+            };
+
+            _sqlHelper.ExecuteNonQuery(sql, sqlParams);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace ERManagementSystem.ViewModels
             _registrationService = registrationService;
         }
 
-      
+   
 
         [ObservableProperty]
         private string patientId = string.Empty;
@@ -30,7 +30,10 @@ namespace ERManagementSystem.ViewModels
         private string lastName = string.Empty;
 
         [ObservableProperty]
-        private DateTimeOffset dateOfBirth = DateTimeOffset.Now.AddYears(-30);
+        private DateTimeOffset dateOfBirth = DateTimeOffset.Now;
+
+        [ObservableProperty]
+        private bool hasDateOfBirth = false;
 
         [ObservableProperty]
         private string gender = string.Empty;
@@ -44,7 +47,7 @@ namespace ERManagementSystem.ViewModels
         [ObservableProperty]
         private string chiefComplaint = string.Empty;
 
-        
+
 
         [ObservableProperty]
         private string patientIdError = string.Empty;
@@ -62,71 +65,144 @@ namespace ERManagementSystem.ViewModels
         private string phoneError = string.Empty;
 
         [ObservableProperty]
+        private string emergencyContactError = string.Empty;
+
+        [ObservableProperty]
         private string chiefComplaintError = string.Empty;
 
-      
-        [ObservableProperty]
-        private bool isFormValid = false;
 
-       
+        private bool _submitAttempted = false;
+
+    
+
         partial void OnPatientIdChanged(string value) => ValidateAll();
         partial void OnFirstNameChanged(string value) => ValidateAll();
         partial void OnLastNameChanged(string value) => ValidateAll();
         partial void OnDateOfBirthChanged(DateTimeOffset value) => ValidateAll();
+        partial void OnHasDateOfBirthChanged(bool value) => ValidateAll();
         partial void OnPhoneChanged(string value) => ValidateAll();
+        partial void OnEmergencyContactChanged(string value) => ValidateAll();
         partial void OnChiefComplaintChanged(string value) => ValidateAll();
 
-     
-        private void ValidateAll()
+   
+
+        private bool ValidateAll()
         {
             bool valid = true;
 
+            // Patient ID — exactly 13 digits
             if (string.IsNullOrWhiteSpace(PatientId))
-            { PatientIdError = "Patient ID (CNP) is required."; valid = false; }
+            {
+                if (_submitAttempted) PatientIdError = "Patient ID (CNP) is required.";
+                valid = false;
+            }
+            else if (!Regex.IsMatch(PatientId, @"^\d{13}$"))
+            {
+                if (_submitAttempted) PatientIdError = "CNP must be exactly 13 digits.";
+                valid = false;
+            }
             else
                 PatientIdError = string.Empty;
 
+            // First Name
             if (string.IsNullOrWhiteSpace(FirstName))
-            { FirstNameError = "First name is required."; valid = false; }
+            {
+                if (_submitAttempted) FirstNameError = "First name is required.";
+                valid = false;
+            }
             else
                 FirstNameError = string.Empty;
 
+            // Last Name
             if (string.IsNullOrWhiteSpace(LastName))
-            { LastNameError = "Last name is required."; valid = false; }
+            {
+                if (_submitAttempted) LastNameError = "Last name is required.";
+                valid = false;
+            }
             else
                 LastNameError = string.Empty;
 
-            if (DateOfBirth >= DateTimeOffset.Now)
-            { DateOfBirthError = "Date of birth must be in the past."; valid = false; }
+            // Date of Birth
+            if (!HasDateOfBirth)
+            {
+                if (_submitAttempted) DateOfBirthError = "Date of birth is required.";
+                valid = false;
+            }
+            else if (DateOfBirth >= DateTimeOffset.Now)
+            {
+                if (_submitAttempted) DateOfBirthError = "Date of birth must be in the past.";
+                valid = false;
+            }
             else
                 DateOfBirthError = string.Empty;
 
+            // Phone — Romanian format 07XXXXXXXX
             if (string.IsNullOrWhiteSpace(Phone))
-            { PhoneError = "Phone number is required."; valid = false; }
+            {
+                if (_submitAttempted) PhoneError = "Phone number is required.";
+                valid = false;
+            }
             else if (!Regex.IsMatch(Phone, @"^07\d{8}$"))
-            { PhoneError = "Phone must be in format 07XXXXXXXX."; valid = false; }
+            {
+                if (_submitAttempted) PhoneError = "Phone must be in format 07XXXXXXXX.";
+                valid = false;
+            }
             else
                 PhoneError = string.Empty;
 
+          
+            if (string.IsNullOrWhiteSpace(EmergencyContact))
+            {
+                if (_submitAttempted) EmergencyContactError = "Emergency contact is required.";
+                valid = false;
+            }
+            else if (!Regex.IsMatch(EmergencyContact,
+                @"^[A-Za-zÀ-ÖØ-öø-ÿ]+(?:[\s\-][A-Za-zÀ-ÖØ-öø-ÿ]+)+ - 07\d{8}$"))
+            {
+                if (_submitAttempted) EmergencyContactError =
+                    "Format: Firstname Lastname - 07XXXXXXXX";
+                valid = false;
+            }
+            else
+                EmergencyContactError = string.Empty;
+
+            // Chief Complaint
             if (string.IsNullOrWhiteSpace(ChiefComplaint))
-            { ChiefComplaintError = "Chief complaint is required."; valid = false; }
+            {
+                if (_submitAttempted) ChiefComplaintError = "Chief complaint is required.";
+                valid = false;
+            }
             else
                 ChiefComplaintError = string.Empty;
 
-            IsFormValid = valid;
-           
-            RegisterPatientAndVisitCommand.NotifyCanExecuteChanged();
+            return valid;
         }
 
-        
 
         private Microsoft.UI.Xaml.XamlRoot? GetXamlRoot()
             => App.MainAppWindow?.Content?.XamlRoot;
 
-      
-        [RelayCommand(CanExecute = nameof(IsFormValid))]
+
+
+        [RelayCommand]
         private async Task RegisterPatientAndVisit()
         {
+            _submitAttempted = true;
+
+            if (!ValidateAll())
+            {
+                var validationDialog = new ContentDialog
+                {
+                    Title = "Invalid Data",
+                    Content = "Some fields are missing or incorrect.\nPlease check the highlighted fields and try again.",
+                    CloseButtonText = "OK",
+                    XamlRoot = GetXamlRoot()
+                };
+
+                await validationDialog.ShowAsync();
+                return;
+            }
+
             try
             {
                 var patient = new Patient
@@ -142,22 +218,22 @@ namespace ERManagementSystem.ViewModels
 
                 ER_Visit visit = _registrationService.RegisterPatientAndVisit(patient, ChiefComplaint);
 
-                var dialog = new ContentDialog
+                var successDialog = new ContentDialog
                 {
                     Title = "Registration Successful",
                     Content = $"Patient ID: {patient.Patient_ID}\n" +
-                              $"Visit ID:   {visit.Visit_ID}\n" +
-                              $"Status:     {visit.Status}",
+                                      $"Visit ID:   {visit.Visit_ID}\n" +
+                                      $"Status:     {visit.Status}",
                     CloseButtonText = "OK",
                     XamlRoot = GetXamlRoot()
                 };
 
-                await dialog.ShowAsync();
+                await successDialog.ShowAsync();
                 ClearForm();
             }
             catch (Exception ex)
             {
-                var dialog = new ContentDialog
+                var errorDialog = new ContentDialog
                 {
                     Title = "Registration Failed",
                     Content = ex.Message,
@@ -165,17 +241,18 @@ namespace ERManagementSystem.ViewModels
                     XamlRoot = GetXamlRoot()
                 };
 
-                await dialog.ShowAsync();
+                await errorDialog.ShowAsync();
             }
         }
 
         [RelayCommand]
-        private void ClearForm()
+        public void ClearForm()
         {
             PatientId = string.Empty;
             FirstName = string.Empty;
             LastName = string.Empty;
-            DateOfBirth = DateTimeOffset.Now.AddYears(-30);
+            DateOfBirth = DateTimeOffset.Now;
+            HasDateOfBirth = false;
             Gender = string.Empty;
             Phone = string.Empty;
             EmergencyContact = string.Empty;
@@ -186,10 +263,10 @@ namespace ERManagementSystem.ViewModels
             LastNameError = string.Empty;
             DateOfBirthError = string.Empty;
             PhoneError = string.Empty;
+            EmergencyContactError = string.Empty;
             ChiefComplaintError = string.Empty;
 
-            IsFormValid = false;
-            RegisterPatientAndVisitCommand.NotifyCanExecuteChanged();
+            _submitAttempted = false;
         }
     }
 }

@@ -6,7 +6,6 @@ using ERManagementSystem.Models;
 
 namespace ERManagementSystem.Repositories
 {
-    
     public class PatientRepository
     {
         private readonly SqlHelper _sqlHelper;
@@ -16,7 +15,6 @@ namespace ERManagementSystem.Repositories
             _sqlHelper = sqlHelper;
         }
 
-       
         public void Add(Patient patient)
         {
             const string query = @"
@@ -39,11 +37,19 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Transferred",       patient.Transferred)
             };
 
-            _sqlHelper.ExecuteNonQuery(query, parameters);
+            try
+            {
+                _sqlHelper.ExecuteNonQuery(query, parameters);
+                Logger.Info($"Patient {patient.Patient_ID} ({patient.First_Name} {patient.Last_Name}) added to DB.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"DB error in PatientRepository.Add for Patient {patient.Patient_ID}.", ex);
+                throw;
+            }
         }
 
-       
-        public Patient GetById(string id)
+        public Patient? GetById(string id)
         {
             const string query = @"
                 SELECT Patient_ID, First_Name, Last_Name, Date_of_Birth,
@@ -56,18 +62,26 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Patient_ID", id)
             };
 
-            Patient? patient = null;
-
-            using var reader = _sqlHelper.ExecuteReader(query, parameters);
-            if (reader.Read())
+            try
             {
-                patient = MapReaderToPatient(reader);
-            }
+                using var reader = _sqlHelper.ExecuteReader(query, parameters);
+                if (reader.Read())
+                {
+                    var patient = MapReaderToPatient(reader);
+                    Logger.Info($"Patient {id} retrieved from DB.");
+                    return patient;
+                }
 
-            return patient;
+                Logger.Warning($"GetById: Patient {id} not found in DB.");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"DB error in PatientRepository.GetById for Patient {id}.", ex);
+                throw;
+            }
         }
 
-        
         public void Update(Patient patient)
         {
             const string query = @"
@@ -93,10 +107,18 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Transferred",       patient.Transferred)
             };
 
-            _sqlHelper.ExecuteNonQuery(query, parameters);
+            try
+            {
+                _sqlHelper.ExecuteNonQuery(query, parameters);
+                Logger.Info($"Patient {patient.Patient_ID} updated in DB.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"DB error in PatientRepository.Update for Patient {patient.Patient_ID}.", ex);
+                throw;
+            }
         }
 
-       
         public void Delete(Patient patient)
         {
             const string query = @"
@@ -108,10 +130,18 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Patient_ID", patient.Patient_ID)
             };
 
-            _sqlHelper.ExecuteNonQuery(query, parameters);
+            try
+            {
+                _sqlHelper.ExecuteNonQuery(query, parameters);
+                Logger.Info($"Patient {patient.Patient_ID} deleted from DB.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"DB error in PatientRepository.Delete for Patient {patient.Patient_ID}.", ex);
+                throw;
+            }
         }
 
-        
         private Patient MapReaderToPatient(SqlDataReader reader)
         {
             return new Patient

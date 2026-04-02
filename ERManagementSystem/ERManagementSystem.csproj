@@ -23,7 +23,7 @@
     <None Remove="Views\TransferLogView.xaml" />
     <None Remove="Views\TriageView.xaml" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
@@ -64,10 +65,18 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Views\TransferLogView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+	  <Page Update="Views\TransferLogView.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Compile Update="Views\TransferLogView.xaml.cs">
+		  <DependentUpon>TransferLogView.xaml</DependentUpon>
+	  </Compile>
   </ItemGroup>
+	<ItemGroup>
+		<Page Update="Views\VisitDetailsPanel.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
   <ItemGroup>
     <Page Update="Views\ExaminationView.xaml">
       <Generator>MSBuild:Compile</Generator>

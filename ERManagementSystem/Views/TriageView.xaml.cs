@@ -1,31 +1,94 @@
-using Microsoft.UI.Xaml;
+using ERManagementSystem.ViewModels;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using System.ComponentModel;
 
 namespace ERManagementSystem.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class TriageView : Page
     {
+        public TriageViewModel? ViewModel { get; private set; }
+
         public TriageView()
         {
-            InitializeComponent();
+            this.InitializeComponent();
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            if (e.Parameter is TriageViewModel vm)
+            {
+                ViewModel = vm;
+                ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+                ViewModel.LoadVisitsForTriageCommand.Execute(null);
+                Bindings.Update();
+            }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            if (ViewModel != null)
+                ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+        }
+
+        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            // When IsTriaged resets to false (via CancelTriage), clear all ComboBoxes
+            if (e.PropertyName == nameof(ViewModel.Consciousness) && ViewModel?.Consciousness == 0)
+                ConsciousnessCombo.SelectedItem = null;
+
+            if (e.PropertyName == nameof(ViewModel.Breathing) && ViewModel?.Breathing == 0)
+                BreathingCombo.SelectedItem = null;
+
+            if (e.PropertyName == nameof(ViewModel.Bleeding) && ViewModel?.Bleeding == 0)
+                BleedingCombo.SelectedItem = null;
+
+            if (e.PropertyName == nameof(ViewModel.InjuryType) && ViewModel?.InjuryType == 0)
+                InjuryTypeCombo.SelectedItem = null;
+
+            if (e.PropertyName == nameof(ViewModel.PainLevel) && ViewModel?.PainLevel == 0)
+                PainLevelCombo.SelectedItem = null;
+        }
+
+        // ── ComboBox SelectionChanged handlers ──────────────────────────
+        // These read the Tag from the selected ComboBoxItem and set the ViewModel property.
+
+        private void ConsciousnessCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModel == null) return;
+            if (sender is ComboBox box && box.SelectedItem is ComboBoxItem item)
+                ViewModel.Consciousness = int.Parse(item.Tag?.ToString() ?? "0");
+        }
+
+        private void BreathingCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModel == null) return;
+            if (sender is ComboBox box && box.SelectedItem is ComboBoxItem item)
+                ViewModel.Breathing = int.Parse(item.Tag?.ToString() ?? "0");
+        }
+
+        private void BleedingCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModel == null) return;
+            if (sender is ComboBox box && box.SelectedItem is ComboBoxItem item)
+                ViewModel.Bleeding = int.Parse(item.Tag?.ToString() ?? "0");
+        }
+
+        private void InjuryTypeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModel == null) return;
+            if (sender is ComboBox box && box.SelectedItem is ComboBoxItem item)
+                ViewModel.InjuryType = int.Parse(item.Tag?.ToString() ?? "0");
+        }
+
+        private void PainLevelCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModel == null) return;
+            if (sender is ComboBox box && box.SelectedItem is ComboBoxItem item)
+                ViewModel.PainLevel = int.Parse(item.Tag?.ToString() ?? "0");
         }
     }
 }

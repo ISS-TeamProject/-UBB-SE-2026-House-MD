@@ -6,9 +6,15 @@ namespace ERManagementSystem.Models
 {
     public class ER_Room
     {
-        public int Room_ID { get; set; }
-        public string Room_Type { get; set; } = string.Empty;
+        public int    Room_ID             { get; set; }
+        public string Room_Type           { get; set; } = string.Empty;
         public string Availability_Status { get; set; } = RoomStatus.Available;
+        /// <summary>
+        /// The Visit_ID currently occupying this room.
+        /// Set by RoomAssignmentService.AssignRoomToVisit(), cleared when room → cleaning.
+        /// Null when the room is available or cleaning.
+        /// </summary>
+        public int?   Current_Visit_ID    { get; set; }
 
         public static class RoomStatus
         {
@@ -19,12 +25,12 @@ namespace ERManagementSystem.Models
 
         public static class RoomType
         {
-            public const string OperatingRoom   = "Operating Room (OR)";
-            public const string TraumaBay        = "Trauma/Resuscitation Bay";
-            public const string RespiratoryRoom  = "Respiratory/Monitored Room";
-            public const string NeurologyRoom    = "Neurology/Quiet Observation Room";
-            public const string OrthopedicRoom   = "Orthopedic/Procedure Room";
-            public const string GeneralRoom      = "General Examination Room";
+            public const string OperatingRoom  = "Operating Room (OR)";
+            public const string TraumaBay       = "Trauma/Resuscitation Bay";
+            public const string RespiratoryRoom = "Respiratory/Monitored Room";
+            public const string NeurologyRoom   = "Neurology/Quiet Observation Room";
+            public const string OrthopedicRoom  = "Orthopedic/Procedure Room";
+            public const string GeneralRoom     = "General Examination Room";
         }
 
         public static readonly IReadOnlyList<string> AllowedStatuses = new[]
@@ -34,19 +40,13 @@ namespace ERManagementSystem.Models
             RoomStatus.Cleaning
         };
 
-        // Task 5.2 — valid transitions enforcing Feature 7 workflow
         private static readonly Dictionary<string, string> ValidTransitions = new()
         {
-            { RoomStatus.Available, RoomStatus.Occupied  },   // patient enters
-            { RoomStatus.Occupied,  RoomStatus.Cleaning  },   // patient leaves
-            { RoomStatus.Cleaning,  RoomStatus.Available }    // after cleaning
+            { RoomStatus.Available, RoomStatus.Occupied  },
+            { RoomStatus.Occupied,  RoomStatus.Cleaning  },
+            { RoomStatus.Cleaning,  RoomStatus.Available }
         };
 
-        /// <summary>
-        /// Updates Availability_Status following the allowed cycle:
-        /// available → occupied → cleaning → available.
-        /// Throws InvalidOperationException for any other transition.
-        /// </summary>
         public void UpdateAvailabilityStatus(string newStatus)
         {
             if (!AllowedStatuses.Contains(newStatus))
