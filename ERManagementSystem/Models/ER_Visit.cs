@@ -85,7 +85,6 @@ namespace ERManagementSystem.Models
         }
 
 
-        public override string ToString() =>
-            $"[Visit {Visit_ID}] Patient: {Patient_ID} | Status: {Status} | Arrived: {Arrival_date_time:yyyy-MM-dd HH:mm}";
+      
     }
 }

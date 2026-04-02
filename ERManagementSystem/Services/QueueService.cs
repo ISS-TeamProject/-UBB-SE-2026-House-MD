@@ -10,12 +10,10 @@ namespace ERManagementSystem.Services
     public class QueueService
     {
         private readonly ERVisitRepository _visitRepository;
-        private readonly StateManagementService _stateService;
 
-        public QueueService(ERVisitRepository visitRepository, StateManagementService stateService)
+        public QueueService(ERVisitRepository visitRepository)
         {
             _visitRepository = visitRepository;
-            _stateService = stateService;
         }
 
         /// <summary>

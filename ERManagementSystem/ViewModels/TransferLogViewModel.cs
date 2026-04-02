@@ -6,6 +6,7 @@ using ERManagementSystem.Repositories;
 using ERManagementSystem.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.UI.Xaml.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;

@@ -20,7 +20,7 @@ namespace ERManagementSystem
         {
             this.InitializeComponent();
             ConfigureServices();
-            ConfigureGlobalExceptionHandling();
+            ConfigureGlobalExceptionHandling(); // 1.11 - Global exception handling - for unexpected issues that escape everything else
         }
 
         private void ConfigureServices()
@@ -59,6 +59,11 @@ namespace ERManagementSystem
             services.AddTransient<RoomAssignmentService>();       // Alex
             services.AddTransient<RoomManagementService>();       // Alex
 
+            // ── Services (Triage & Queue) ────────────────────────────────────
+            services.AddSingleton<NurseService>();
+            services.AddTransient<TriageService>();
+            services.AddTransient<QueueService>();
+
             // ── ViewModels ───────────────────────────────────────────────────
             services.AddSingleton<MainWindowViewModel>();
             services.AddTransient<PatientRegistrationViewModel>();
@@ -94,15 +99,23 @@ namespace ERManagementSystem
         {
             Logger.Error("Unhandled UI exception.", e.Exception);
             e.Handled = true;
-            await ErrorDialogHelper.ShowErrorAsync("Unexpected Error", "Something went wrong. The error was logged.");
+
+            await ErrorDialogHelper.ShowErrorAsync(
+                "Unexpected Error",
+                "Something went wrong. The error was logged."
+            );
         }
 
         private void CurrentDomain_UnhandledException(object? sender, System.UnhandledExceptionEventArgs e)
         {
             if (e.ExceptionObject is Exception ex)
+            {
                 Logger.Error("Unhandled non-UI exception.", ex);
+            }
             else
+            {
                 Logger.Error("Unhandled non-UI exception with unknown exception object.");
+            }
         }
 
         private void TaskScheduler_UnobservedTaskException(object? sender, System.Threading.Tasks.UnobservedTaskExceptionEventArgs e)

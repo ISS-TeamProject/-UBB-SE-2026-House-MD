@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ERManagementSystem.Models;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
@@ -14,44 +14,9 @@ namespace ERManagementSystem.Views
             this.InitializeComponent();
         }
 
-
-        public static readonly DependencyProperty PatientProperty =
-            DependencyProperty.Register(nameof(Patient), typeof(Patient), typeof(VisitDetailsPanel), new PropertyMetadata(null, OnDataChanged));
-
-        public Patient? Patient
-        {
-            get => (Patient?)GetValue(PatientProperty);
-            set => SetValue(PatientProperty, value);
-        }
-
-        public static readonly DependencyProperty VisitProperty =
-            DependencyProperty.Register(nameof(Visit), typeof(ER_Visit), typeof(VisitDetailsPanel), new PropertyMetadata(null, OnDataChanged));
-
-        public ER_Visit? Visit
-        {
-            get => (ER_Visit?)GetValue(VisitProperty);
-            set => SetValue(VisitProperty, value);
-        }
-
-        public static readonly DependencyProperty TriageProperty =
-            DependencyProperty.Register(nameof(Triage), typeof(Triage), typeof(VisitDetailsPanel), new PropertyMetadata(null, OnDataChanged));
-
-        public Triage? Triage
-        {
-            get => (Triage?)GetValue(TriageProperty);
-            set => SetValue(TriageProperty, value);
-        }
-
-        private static void OnDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VisitDetailsPanel panel)
-            {
-                panel.LoadVisit(panel.Patient, panel.Visit, panel.Triage);
-            }
-        }
-
         // ─────────────────────────────────────────────
-        // Public method — loads visit data
+        // Public method — call this to load visit data
+        // Pass triage as null if not yet triaged
         // ─────────────────────────────────────────────
 
         public void LoadVisit(Patient? patient, ER_Visit? visit, Triage? triage = null)
