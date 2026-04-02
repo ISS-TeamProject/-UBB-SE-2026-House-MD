@@ -18,7 +18,6 @@ namespace ERManagementSystem.Services
             // Hardcoded doctor assignment based on specialization
             return specialization?.Trim().ToLowerInvariant() switch
             {
-                "cardiology" => 101,
                 "orthopedics" => 102,
                 "neurology" => 103,
                 "pulmonology" => 105,
@@ -35,7 +34,6 @@ namespace ERManagementSystem.Services
         {
             return doctorID switch
             {
-                101 => new Doctor { DoctorID = 101, Name = "Dr. Smith", Specialty = "Cardiology" },
                 102 => new Doctor { DoctorID = 102, Name = "Dr. Johnson", Specialty = "Orthopedics" },
                 103 => new Doctor { DoctorID = 103, Name = "Dr. Williams", Specialty = "Neurology" },
                 104 => new Doctor { DoctorID = 104, Name = "Dr. Brown", Specialty = "General Medicine" },

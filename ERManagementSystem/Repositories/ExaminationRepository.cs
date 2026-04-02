@@ -30,7 +30,16 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Notes", exam.Notes)
             };
 
-            _sqlHelper.ExecuteNonQuery(sql, parameters);
+            try
+            {
+                _sqlHelper.ExecuteNonQuery(sql, parameters);
+                Logger.Info($"Successfully added new examination record for Visit {exam.Visit_ID}.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Database operation failed in ExaminationRepository.Add for Visit {exam.Visit_ID}", ex);
+                throw;
+            }
         }
 
         // Task 4.10: Retrieves a list of Examination records by Visit_ID (history).
@@ -108,7 +117,16 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@Notes", notes)
             };
 
-            _sqlHelper.ExecuteNonQuery(sql, parameters);
+            try
+            {
+                _sqlHelper.ExecuteNonQuery(sql, parameters);
+                Logger.Info($"Successfully auto-saved notes for examination {examId}.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Database operation failed in ExaminationRepository.UpdateNotes for Exam {examId}", ex);
+                throw;
+            }
         }
 
         public void Delete(Examination exam)
@@ -175,26 +193,34 @@ namespace ERManagementSystem.Repositories
                 new SqlParameter("@ExamId", examId)
             };
 
-            using var reader = _sqlHelper.ExecuteReader(sql, parameters);
-            if (reader.Read())
+            try
             {
-                return new ExaminationSummaryDTO
+                using var reader = _sqlHelper.ExecuteReader(sql, parameters);
+                if (reader.Read())
                 {
-                    FirstName = reader.GetString(0),
-                    LastName = reader.GetString(1),
-                    ArrivalDateTime = reader.GetDateTime(2),
-                    ChiefComplaint = reader.GetString(3),
-                    TriageLevel = reader.GetInt32(4),
-                    Specialization = reader.IsDBNull(5) ? string.Empty : reader.GetString(5),
-                    Consciousness = reader.GetInt32(6),
-                    Breathing = reader.GetInt32(7),
-                    Bleeding = reader.GetInt32(8),
-                    InjuryType = reader.GetInt32(9),
-                    PainLevel = reader.GetInt32(10),
-                    DoctorId = reader.GetInt32(11),
-                    ExamTime = reader.GetDateTime(12),
-                    Notes = reader.GetString(13)
-                };
+                    return new ExaminationSummaryDTO
+                    {
+                        FirstName = reader.GetString(0),
+                        LastName = reader.GetString(1),
+                        ArrivalDateTime = reader.GetDateTime(2),
+                        ChiefComplaint = reader.GetString(3),
+                        TriageLevel = reader.GetInt32(4),
+                        Specialization = reader.IsDBNull(5) ? string.Empty : reader.GetString(5),
+                        Consciousness = reader.GetInt32(6),
+                        Breathing = reader.GetInt32(7),
+                        Bleeding = reader.GetInt32(8),
+                        InjuryType = reader.GetInt32(9),
+                        PainLevel = reader.GetInt32(10),
+                        DoctorId = reader.GetInt32(11),
+                        ExamTime = reader.GetDateTime(12),
+                        Notes = reader.GetString(13)
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Database query failed in ExaminationRepository.GetExaminationSummary for Exam {examId}", ex);
+                throw;
             }
 
             return null;
