@@ -70,12 +70,14 @@ namespace ERManagementSystem.Services
 
                 // Task 6.5: store the file path in the log
                 log.FilePath = filePath;
+                Logger.Info($"[TransferService] Patient data for Visit {visitId} saved to {filePath}");
                 log.Status = "SUCCESS";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 log.Status = "FAILED";
                 log.FilePath = null;
+                Logger.Error($"[TransferService] SendPatientData failed for Visit {visitId}", ex);
                 _transferLogRepository.Add(log);
                 throw;
             }
@@ -101,6 +103,7 @@ namespace ERManagementSystem.Services
                 Status = status
             };
             log.Validate();
+            Logger.Info($"[TransferService] Transfer logged for Visit {visitId} with status '{status}'");
             _transferLogRepository.Add(log);
         }
 
@@ -122,6 +125,7 @@ namespace ERManagementSystem.Services
         /// </summary>
         public Transfer_Log RetryTransfer(int visitId)
         {
+            Logger.Warning($"[TransferService] Retrying transfer for Visit {visitId}");
             LogTransfer(visitId, "RETRYING");
             return SendPatientData(visitId);
         }
@@ -142,12 +146,14 @@ namespace ERManagementSystem.Services
 
             _sqlHelper.ExecuteNonQuery(sql,
                 new SqlParameter("@VisitId", visitId));
+            Logger.Info($"[TransferService] Patient marked as transferred for Visit {visitId}");
         }
 
         // Task 6.10 — Transition visit IN_EXAMINATION → TRANSFERRED
         public void TransitionVisitToTransferred(int visitId)
         {
             _stateManagementService.ChangeVisitStatus(visitId, "TRANSFERRED");
+            Logger.Info($"[TransferService] Visit {visitId} transitioned to TRANSFERRED");
         }
         // Task 6.3 — Build PatientDataPackage via hand-written JOIN query
         private PatientDataPackage BuildPatientDataPackage(int visitId)
