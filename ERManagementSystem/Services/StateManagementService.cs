@@ -106,5 +106,10 @@ namespace ERManagementSystem.Services
             ChangeVisitStatus(visitId, ER_Visit.VisitStatus.CLOSED);
             Logger.Info($"Visit {visitId} successfully closed.");
         }
+
+        public List<ER_Visit> GetByStatus(string status)
+        {
+            return _erVisitRepository.GetByStatus(status);
+        }
     }
 }
