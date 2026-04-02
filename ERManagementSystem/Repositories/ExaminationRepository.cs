@@ -167,15 +167,19 @@ namespace ERManagementSystem.Repositories
         }
 
         // Temporary method to fetch a valid Room_ID until Room Assignment feature is completed
-        public int GetFirstRoomId()
+        public int GetRoomIdByVisitId(int visitId)
         {
-            string query = "SELECT TOP 1 Room_ID FROM dbo.ER_Room";
-            using var reader = _sqlHelper.ExecuteReader(query);
-            if (reader.Read())
+
+            string sql = "SELECT TOP 1 Room_ID FROM Examination WHERE Visit_ID = @VisitId ORDER BY Exam_Time DESC";
+            SqlParameter[] parameters = { new SqlParameter("@VisitId", visitId) };
+            using (var reader = _sqlHelper.ExecuteReader(sql, parameters))
             {
-                return reader.GetInt32(0);
+                if (reader.Read())
+                {
+                    return Convert.ToInt32(reader["Room_ID"]);
+                }
             }
-            return 1; 
+            throw new Exception($"No examination record found for Visit ID {visitId}.");
         }
     }
 }
