@@ -15,16 +15,13 @@ namespace ERManagementSystem.ViewModels
     public partial class TriageViewModel : BaseViewModel
     {
         private readonly TriageService _triageService;
-        private readonly ERVisitRepository _visitRepository;
         private readonly StateManagementService _stateService;
 
         public TriageViewModel(
             TriageService triageService,
-            ERVisitRepository visitRepository,
             StateManagementService stateService)
         {
             _triageService = triageService;
-            _visitRepository = visitRepository;
             _stateService = stateService;
         }
 
@@ -99,8 +96,8 @@ namespace ERManagementSystem.ViewModels
         {
             RegisteredVisits.Clear();
 
-            var visits = _visitRepository.GetByStatus(ER_Visit.VisitStatus.REGISTERED)
-                .Concat(_visitRepository.GetByStatus(ER_Visit.VisitStatus.TRIAGED));
+            var visits = _stateService.GetByStatus(ER_Visit.VisitStatus.REGISTERED)
+                .Concat(_stateService.GetByStatus(ER_Visit.VisitStatus.TRIAGED));
 
             foreach (var v in visits)
                 RegisteredVisits.Add(v);
