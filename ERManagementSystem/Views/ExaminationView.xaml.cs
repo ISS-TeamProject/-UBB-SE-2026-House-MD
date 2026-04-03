@@ -43,6 +43,7 @@ namespace ERManagementSystem.Views
                 var examRepository = new ExaminationRepository(sqlHelper);
                 var erVisitRepository = new ERVisitRepository(sqlHelper);
                 var triageRepository = new TriageRepository(sqlHelper);
+                var triageParamsRepo = new TriageParametersRepository(sqlHelper);
                 var roomRepository = new RoomRepository(sqlHelper);
 
                 // Services
@@ -54,12 +55,14 @@ namespace ERManagementSystem.Views
                     erVisitRepository,
                     triageRepository,
                     mockStaffService,
-                    stateManagementService);
+                    stateManagementService,
+                    triageParamsRepo);
 
                 // Task 5.13: pass roomRepository so SaveExamination stores the correct Room_ID
                 ViewModel = new ExaminationViewModel(
                     examinationService, mockStaffService,
                     erVisitRepository, examRepository, triageRepository,
+                    triageParamsRepo,
                     roomRepository);
             }
 

@@ -30,6 +30,7 @@ namespace ERManagementSystem.ViewModels
         private readonly ERVisitRepository _erVisitRepository;
         private readonly ExaminationRepository _examRepository;
         private readonly TriageRepository _triageRepository;
+        private readonly TriageParametersRepository _triageParamsRepo;
         private readonly RoomRepository? _roomRepository;   // Task 5.13: resolve correct Room_ID
 
         // XamlRoot needed to show ContentDialogs — set by the View
@@ -78,25 +79,7 @@ namespace ERManagementSystem.ViewModels
         [ObservableProperty]
         private string triageNurseId = string.Empty;
 
-        [ObservableProperty]
-        private string consciousnessDisplay = string.Empty;
-
-        [ObservableProperty]
-        private string breathingDisplay = string.Empty;
-
-        [ObservableProperty]
-        private string bleedingDisplay = string.Empty;
-
-        [ObservableProperty]
-        private string injuryTypeDisplay = string.Empty;
-
-        [ObservableProperty]
-        private string painLevelDisplay = string.Empty;
-
-        [ObservableProperty]
-        private string severityScoreDisplay = string.Empty;
-
-        // Task 4.13: Auto-Save state
+        // Triage Detail visibility mechanismve state
         private Microsoft.UI.Xaml.DispatcherTimer _autoSaveTimer;
         private string _lastSavedNotes = string.Empty;
         
@@ -111,6 +94,7 @@ namespace ERManagementSystem.ViewModels
             ERVisitRepository erVisitRepository,
             ExaminationRepository examRepository,
             TriageRepository triageRepository,
+            TriageParametersRepository triageParamsRepo,
             RoomRepository? roomRepository = null)   // optional — Task 5.13
         {
             _examinationService = examinationService;
@@ -118,6 +102,7 @@ namespace ERManagementSystem.ViewModels
             _erVisitRepository = erVisitRepository;
             _examRepository = examRepository;
             _triageRepository = triageRepository;
+            _triageParamsRepo = triageParamsRepo;
             _roomRepository = roomRepository;
 
             // Task 4.13: Initialize 10s auto-save timer
@@ -151,7 +136,7 @@ namespace ERManagementSystem.ViewModels
             SavedTimeDisplay = string.Empty;
         }
 
-        // ── Task 4.9: CanExecute methods ─────────────────────────────────
+        //  Task 4.9: CanExecute methods 
 
         private bool CanRequestDoctor()
             => SelectedVisit != null && SelectedVisit.Status == "IN_ROOM";
@@ -170,7 +155,7 @@ namespace ERManagementSystem.ViewModels
         }
 
 
-        // ── LoadData [RelayCommand] ──────────────────────────────────────
+        // LoadData [RelayCommand]
         // Loads visits with status IN_ROOM and WAITING_FOR_DOCTOR.
 
         [RelayCommand]
@@ -196,8 +181,7 @@ namespace ERManagementSystem.ViewModels
             }
         }
 
-        // ── When SelectedVisit changes, show assigned doctor if applicable ──
-
+        // When SelectedVisit changes, show assigned doctor if applicable 
         partial void OnSelectedVisitChanged(ER_Visit? value)
         {
             if (value == null)
@@ -249,7 +233,7 @@ namespace ERManagementSystem.ViewModels
                     if (triage != null && !string.IsNullOrEmpty(triage.Specialization))
                     {
                         // Even if Triage Parameters are corrupted/missing in the seed, we can still recover the doctor.
-                        var triageParams = _examRepository.GetTriageWithParameters(triage.Triage_ID);
+                        var triageParams = _triageParamsRepo.GetByTriageId(triage.Triage_ID);
                         int recoveredDoctorId = _mockStaffService.RequestDoctor(triage.Specialization, triageParams ?? new ERManagementSystem.Models.Triage_Parameters());
                         
                         DoctorId = recoveredDoctorId;
@@ -281,8 +265,7 @@ namespace ERManagementSystem.ViewModels
             _lastSavedNotes = Notes;
         }
 
-        // ── Task 4.14: Triage Details helpers ─────────────────────────────
-
+        // Task 4.14: Triage Details helpers 
         /// <summary>
         /// Task 4.14: Load all triage details for a visit using repository models.
         /// </summary>
@@ -291,21 +274,13 @@ namespace ERManagementSystem.ViewModels
             var triage = _triageRepository.GetByVisitId(visitId);
             if (triage != null)
             {
-                var triageParams = _examRepository.GetTriageWithParameters(triage.Triage_ID);
+                var triageParams = _triageParamsRepo.GetByTriageId(triage.Triage_ID);
                 if (triageParams != null)
                 {
-                    int severityScore = triageParams.Consciousness + triageParams.Breathing + 
-                                        triageParams.Bleeding + triageParams.Injury_Type + triageParams.Pain_Level;
-
                     TriageLevelDisplay = $"Level {triage.Triage_Level}";
                     TriageSpecialization = string.IsNullOrEmpty(triage.Specialization) ? "N/A" : triage.Specialization;
                     TriageNurseId = $"Nurse #{triage.Nurse_ID}";
-                    ConsciousnessDisplay = FormatConsciousness(triageParams.Consciousness);
-                    BreathingDisplay = FormatBreathing(triageParams.Breathing);
-                    BleedingDisplay = FormatBleeding(triageParams.Bleeding);
-                    InjuryTypeDisplay = FormatInjuryType(triageParams.Injury_Type);
-                    PainLevelDisplay = FormatPainLevel(triageParams.Pain_Level);
-                    SeverityScoreDisplay = $"{severityScore} / 15";
+
                     return;
                 }
             }
@@ -317,61 +292,11 @@ namespace ERManagementSystem.ViewModels
             TriageLevelDisplay = string.Empty;
             TriageSpecialization = string.Empty;
             TriageNurseId = string.Empty;
-            ConsciousnessDisplay = string.Empty;
-            BreathingDisplay = string.Empty;
-            BleedingDisplay = string.Empty;
-            InjuryTypeDisplay = string.Empty;
-            PainLevelDisplay = string.Empty;
-            SeverityScoreDisplay = string.Empty;
         }
-
-        // ── Human-readable labels for triage parameter values ──
-        // Values: 1 = normal, 2 = moderate, 3 = critical
-
-        private static string FormatConsciousness(int val) => val switch
-        {
-            1 => "1 — Alert",
-            2 => "2 — Confused",
-            3 => "3 — Unconscious",
-            _ => val.ToString()
-        };
-
-        private static string FormatBreathing(int val) => val switch
-        {
-            1 => "1 — Normal",
-            2 => "2 — Labored",
-            3 => "3 — Absent/Critical",
-            _ => val.ToString()
-        };
-
-        private static string FormatBleeding(int val) => val switch
-        {
-            1 => "1 — None",
-            2 => "2 — Moderate",
-            3 => "3 — Severe",
-            _ => val.ToString()
-        };
-
-        private static string FormatInjuryType(int val) => val switch
-        {
-            1 => "1 — Minor",
-            2 => "2 — Moderate",
-            3 => "3 — Critical",
-            _ => val.ToString()
-        };
-
-        private static string FormatPainLevel(int val) => val switch
-        {
-            1 => "1 — Mild",
-            2 => "2 — Moderate",
-            3 => "3 — Severe",
-            _ => val.ToString()
-        };
 
         // RequestDoctor [RelayCommand]
         // Task 4.5 / 4.6: Request a doctor for the selected visit.
         // Task 4.9: CanExecute disables button unless visit is IN_ROOM.
-
         [RelayCommand(CanExecute = nameof(CanRequestDoctor))]
         public async void RequestDoctor()
         {
@@ -413,10 +338,9 @@ namespace ERManagementSystem.ViewModels
             }
         }
 
-        // ── SaveExamination [RelayCommand] ───────────────────────────────
+        // SaveExamination [RelayCommand] 
         // Task 4.4 / 4.8: Save the examination record and transition
         // WAITING_FOR_DOCTOR → IN_EXAMINATION.
-
         [RelayCommand(CanExecute = nameof(CanSaveExamination))]
         public async void SaveExamination()
         {
@@ -480,8 +404,7 @@ namespace ERManagementSystem.ViewModels
             }
         }
 
-        // ── Task 4.12: Examination Summary [RelayCommand] ────────────────
-
+        // Task 4.12: Examination Summary [RelayCommand] 
         [RelayCommand(CanExecute = nameof(CanViewSummary))]
         public async void ViewSummary()
         {
@@ -539,8 +462,7 @@ namespace ERManagementSystem.ViewModels
             await dialog.ShowAsync();
         }
 
-        // ── Helper: WinUI 3 ContentDialog ────────────────────────────────
-
+        // Helper: WinUI 3 ContentDialog 
         private async System.Threading.Tasks.Task ShowDialog(string title, string message)
         {
             if (XamlRoot == null) return;

@@ -42,35 +42,7 @@ namespace ERManagementSystem.Repositories
             }
         }
 
-        // Task 4.10: Retrieves a list of Examination records by Visit_ID (history).
-        public List<Examination> GetByVisitId(int visitId)
-        {       
-            
-            var history = new List<Examination>();
-            string sql = "SELECT Exam_ID, Visit_ID, Doctor_ID, Exam_Time, Room_ID, Notes FROM Examination WHERE Visit_ID = @Visit_ID ORDER BY Exam_Time DESC";
 
-            var parameters = new SqlParameter[]
-            {
-                new SqlParameter("@Visit_ID", visitId)
-            };
-
-            using var reader = _sqlHelper.ExecuteReader(sql, parameters);
-
-            while (reader.Read())
-            {
-                history.Add(new Examination
-                {
-                    Exam_ID = reader.GetInt32(reader.GetOrdinal("Exam_ID")),
-                    Visit_ID = reader.GetInt32(reader.GetOrdinal("Visit_ID")),
-                    Doctor_ID = reader.GetInt32(reader.GetOrdinal("Doctor_ID")),
-                    Exam_Time = reader.GetDateTime(reader.GetOrdinal("Exam_Time")),
-                    Room_ID = reader.GetInt32(reader.GetOrdinal("Room_ID")),
-                    Notes = reader.GetString(reader.GetOrdinal("Notes"))
-                });
-            }
-
-            return history;
-        }
 
         // Retrieves a list of Examination records by Patient_ID (full history).
         public List<Examination> GetByPatientId(string patientId)
@@ -127,48 +99,6 @@ namespace ERManagementSystem.Repositories
                 Logger.Error($"Database operation failed in ExaminationRepository.UpdateNotes for Exam {examId}", ex);
                 throw;
             }
-        }
-
-        public void Delete(Examination exam)
-        {
-            const string query = @"
-                DELETE FROM dbo.Examination
-                WHERE Exam_ID = @Exam_ID";
-
-            var parameters = new[]
-            {
-                new SqlParameter("@Exam_ID", exam.Exam_ID)
-            };
-
-            _sqlHelper.ExecuteNonQuery(query, parameters);
-        }
-
-        public Triage_Parameters GetTriageWithParameters(int triageID)
-        {
-            string query = @"
-                SELECT tp.*
-                FROM Triage t
-                JOIN Triage_Parameters tp ON t.Triage_ID = tp.Triage_ID
-                WHERE t.Triage_ID = @TriageID";
-
-            var parameters = new[] { new SqlParameter("@TriageID", triageID) };
-            
-            using var reader = _sqlHelper.ExecuteReader(query, parameters);
-            
-            if (reader.Read())
-            {
-                return new Triage_Parameters
-                {
-                    Triage_ID = reader.GetInt32(reader.GetOrdinal("Triage_ID")),
-                    Consciousness = reader.GetInt32(reader.GetOrdinal("Consciousness")),
-                    Breathing = reader.GetInt32(reader.GetOrdinal("Breathing")),
-                    Bleeding = reader.GetInt32(reader.GetOrdinal("Bleeding")),
-                    Injury_Type = reader.GetInt32(reader.GetOrdinal("Injury_Type")),
-                    Pain_Level = reader.GetInt32(reader.GetOrdinal("Pain_Level"))
-                };
-            }
-            
-            return null;
         }
 
         // Task 4.12: Retrieves aggregated summary details via JOINs.

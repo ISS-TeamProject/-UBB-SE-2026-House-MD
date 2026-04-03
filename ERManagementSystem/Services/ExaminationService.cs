@@ -18,19 +18,22 @@ namespace ERManagementSystem.Services
         private readonly TriageRepository _triageRepository;
         private readonly MockStaffService _mockStaffService;
         private readonly StateManagementService _stateManagementService;
+        private readonly TriageParametersRepository _triageParamsRepo;
 
         public ExaminationService(
             ExaminationRepository examRepository,
             ERVisitRepository erVisitRepository,
             TriageRepository triageRepository,
             MockStaffService mockStaffService,
-            StateManagementService stateManagementService)
+            StateManagementService stateManagementService,
+            TriageParametersRepository triageParamsRepo)
         {
             _examRepository = examRepository;
             _erVisitRepository = erVisitRepository;
             _triageRepository = triageRepository;
             _mockStaffService = mockStaffService;
             _stateManagementService = stateManagementService;
+            _triageParamsRepo = triageParamsRepo;
         }
 
         /// <summary>
@@ -50,7 +53,7 @@ namespace ERManagementSystem.Services
                 throw new Exception($"Triage record not found for visit {visitID}");
             }
 
-            var triageParameters = _examRepository.GetTriageWithParameters(triage.Triage_ID);
+            var triageParameters = _triageParamsRepo.GetByTriageId(triage.Triage_ID);
 
             if (triageParameters == null)
             {
@@ -78,6 +81,5 @@ namespace ERManagementSystem.Services
             _stateManagementService.ChangeVisitStatus(exam.Visit_ID, "IN_EXAMINATION");
             Logger.Info($"Visit {exam.Visit_ID} transitioned to IN_EXAMINATION following saved examination.");
         }
-
     }        
 }

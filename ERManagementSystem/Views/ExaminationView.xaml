@@ -107,13 +107,7 @@
                             <TextBlock Text="{x:Bind ViewModel.TriageSpecialization, Mode=OneWay}"
                                        FontSize="16" FontWeight="SemiBold"/>
                         </StackPanel>
-                        <StackPanel MinWidth="100">
-                            <TextBlock Text="Severity Score"
-                                       Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                       FontSize="12"/>
-                            <TextBlock Text="{x:Bind ViewModel.SeverityScoreDisplay, Mode=OneWay}"
-                                       FontSize="16" FontWeight="SemiBold"/>
-                        </StackPanel>
+
                         <StackPanel MinWidth="100">
                             <TextBlock Text="Assigned Nurse"
                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
@@ -123,44 +117,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- Row 2: 5 Triage Parameters -->
-                    <StackPanel Orientation="Horizontal" Spacing="24" Margin="0,8,0,0">
-                        <StackPanel MinWidth="120">
-                            <TextBlock Text="Consciousness"
-                                       Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                       FontSize="12"/>
-                            <TextBlock Text="{x:Bind ViewModel.ConsciousnessDisplay, Mode=OneWay}"
-                                       FontSize="14"/>
-                        </StackPanel>
-                        <StackPanel MinWidth="120">
-                            <TextBlock Text="Breathing"
-                                       Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                       FontSize="12"/>
-                            <TextBlock Text="{x:Bind ViewModel.BreathingDisplay, Mode=OneWay}"
-                                       FontSize="14"/>
-                        </StackPanel>
-                        <StackPanel MinWidth="100">
-                            <TextBlock Text="Bleeding"
-                                       Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                       FontSize="12"/>
-                            <TextBlock Text="{x:Bind ViewModel.BleedingDisplay, Mode=OneWay}"
-                                       FontSize="14"/>
-                        </StackPanel>
-                        <StackPanel MinWidth="100">
-                            <TextBlock Text="Injury Type"
-                                       Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                       FontSize="12"/>
-                            <TextBlock Text="{x:Bind ViewModel.InjuryTypeDisplay, Mode=OneWay}"
-                                       FontSize="14"/>
-                        </StackPanel>
-                        <StackPanel MinWidth="100">
-                            <TextBlock Text="Pain Level"
-                                       Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                       FontSize="12"/>
-                            <TextBlock Text="{x:Bind ViewModel.PainLevelDisplay, Mode=OneWay}"
-                                       FontSize="14"/>
-                        </StackPanel>
-                    </StackPanel>
+
                 </StackPanel>
             </Border>
 

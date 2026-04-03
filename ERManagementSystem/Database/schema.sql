@@ -125,8 +125,10 @@ CREATE TABLE dbo.ER_Room
     Room_ID INT IDENTITY(1,1) NOT NULL,
     Room_Type NVARCHAR(50) NOT NULL,
     Availability_Status NVARCHAR(50) NOT NULL CONSTRAINT DF_ER_Room_Availability_Status DEFAULT 'available',
+    Current_Visit_ID INT NULL,
 
     CONSTRAINT PK_ER_Room PRIMARY KEY (Room_ID),
+    CONSTRAINT FK_ER_Room_ER_Visit FOREIGN KEY (Current_Visit_ID) REFERENCES dbo.ER_Visit(Visit_ID),
     CONSTRAINT CK_ER_Room_Room_Type
         CHECK (Room_Type IN (
             'Operating Room (OR)',
